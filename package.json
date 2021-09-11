@@ -1,15 +1,26 @@
 {
   "name": "catalyst-user-script",
   "version": "0.8.1",
-  "description": "Script for User-Service Team",
   "main": "index.ts",
+  "bin": {
+    "crypter": "lib/index.js"
+  },
+  "description": "Node.js command-line programs for work tasks",
+  "keywords": [
+    "commander",
+    "command",
+    "json",
+    "csv",
+    "cli",
+    "work",
+    "tasks",
+    "argv"
+  ],
+  "author": "Alberto Barboza <devalbertobarboza@gmail.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "..."
-  },
-  "bin": {
-    "crypter": "lib/index.js"
+    "url": "https://github.com/Albertobar94/crypter.git"
   },
   "scripts": {
     "lint": "eslint . -c .eslintrc.json --ext ts",
@@ -17,7 +28,8 @@
     "build": "tsc",
     "link": "npm install -g && chmod +x lib/index.js",
     "install": "npm run build && npm run link",
-    "i": "npm run build && npm run link"
+    "i": "npm run build && npm run link",
+    "publish": "npm publish --access public --tag beta"
   },
   "devDependencies": {
     "@types/clear": "^0.1.1",
