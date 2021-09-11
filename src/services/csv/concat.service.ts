@@ -1,58 +1,68 @@
 import { normalizeData } from '../../utils/helpers';
 import { readFileStream, writeFile } from '../../utils/io';
-import { logError, logInfo, logData } from '../../utils/logging';
+import { logError, logInfo, logData, logDebug } from '../../utils/logging';
 
 interface Props {
-  filePaths?: string;
-  columnsToConcat?: string;
-  identifier?: string;
-  outputFile: string;
+  files?: string;
+  concatColumns?: string;
+  matchingValue?: string;
+  outputDir: string;
+  debug: boolean;
 }
 
-const concatService = async ({ filePaths, columnsToConcat, identifier, outputFile }: Props) => {
-  // Vars Stage //
-  let normalizedData: any[] = [];
-  const fps = filePaths!.split(',');
-  const ctc = columnsToConcat!.split(',');
+const concatService = async ({ files, concatColumns, matchingValue, outputDir, debug }: Props) => {
+  if (debug) {
+    logDebug({
+      data: {
+        files,
+        concatColumns,
+        matchingValue,
+        outputDir,
+      },
+      message: 'Data supplied to service',
+    });
+  }
 
-  logInfo({
-    serviceName: 'concatService',
-    data: {
-      filePaths,
-      columnsToConcat,
-      identifier,
-    },
-    message: 'Started running Concat Service',
-  });
+  let normalizedData: any[] = [];
+  const fs = files!.split(',');
+  const cc = concatColumns!.split(',');
+  const outputFile = `${outputDir}/concatenated-file.csv`;
+
+  if (!files) throw new Error('File Paths must be specified');
+  if (!concatColumns) throw new Error('concatColumns must be specified');
+  if (!matchingValue) throw new Error('Matching value must be specified');
+  if (!outputDir) throw new Error('outputDir must be specified');
+  if (!matchingValue) throw Error('No value for Exact Property was provided');
+  if (fs && fs.length > 2) throw Error('File Paths must be only two!');
+  if (cc && cc.length < 1) throw Error('Columns must be at least one!');
 
   try {
-    // Errors Stage //
-    if (!identifier) throw Error('No value for Exact Property was provided');
-    if (fps && fps.length > 2) throw Error('File Paths must be only two!');
-    if (ctc && ctc.length < 1) throw Error('Columns must be at least one!');
-
-    // Promises Stage //
-    const promises = fps.map(fp => {
+    const promises = fs.map(fp => {
       return readFileStream({
         filePath: fp,
-        identifier,
+        identifier: matchingValue,
       });
     });
     const [first, second]: any = await Promise.all(promises);
 
     // Normalize data stage Stage //
-    for (let identifier in first) {
-      if (identifier in second) {
-        const data = normalizeData({ columns: ctc, arr: [first, second], identifier });
+    for (let matchingValue in first) {
+      if (matchingValue in second) {
+        const data = normalizeData({
+          columns: cc,
+          arr: [first, second],
+          identifier: matchingValue,
+        });
         normalizedData.push(data);
       } else {
-        logInfo({
-          serviceName: 'normalizeData',
-          data: {
-            identifier,
-          },
-          message: 'NOT_FOUND matching parameters for both files for identifier',
-        });
+        if (debug) {
+          logDebug({
+            data: {
+              matchingValue,
+            },
+            message: 'NOT_FOUND matching parameters for both files for matchingValue',
+          });
+        }
       }
     }
 
@@ -61,23 +71,20 @@ const concatService = async ({ filePaths, columnsToConcat, identifier, outputFil
       filePath: outputFile,
       content: normalizedData,
       parser: 'CSV',
-      columns: ctc,
+      columns: cc,
     });
   } catch (error) {
-    console.error(error);
     logError({
-      serviceName: 'concatService',
-      error,
       message: 'ERROR while Running Concat Service',
     });
+    console.error(error);
   } finally {
-    logData({
-      serviceName: 'concatService',
-      data: {
-        filePath: outputFile,
-      },
-      message: `logDatafully Ran Concat Service. Output file is ${outputFile}`,
-    });
+    // logData({
+    //   data: {
+    //     outputFile,
+    //   },
+    //   message: `logDatafully Ran Concat Service. Output file is at ${outputFile}`,
+    // });
   }
 };
 

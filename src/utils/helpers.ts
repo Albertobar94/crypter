@@ -24,12 +24,12 @@ export const parseTuple = (arr: string[]): string => {
 
 export const normalizeData = ({ columns, arr, identifier }) => {
   const one = columns.map(column => {
-    logInfo({
-      serviceName: 'normalizeData',
-      message: `PROCESSING column ${column} with a value of ${
-        arr[0][identifier][column] || arr[1][identifier][column]
-      } in identifier ${identifier}`,
-    });
+    // logInfo({
+    //   serviceName: 'normalizeData',
+    //   message: `PROCESSING column ${column} with a value of ${
+    //     arr[0][identifier][column] || arr[1][identifier][column]
+    //   } in identifier ${identifier}`,
+    // });
     return {
       [column]: arr[0][identifier][column] || arr[1][identifier][column],
     };
@@ -39,43 +39,48 @@ export const normalizeData = ({ columns, arr, identifier }) => {
   return data;
 };
 
-export const parseCVS = (filePath: string, identifier: string): Promise<Record<string, unknown>> => {
+export const parseCVS = (
+  filePath: string,
+  identifier: string,
+): Promise<Record<string, unknown>> => {
   let result = {};
   let resultLength = Object.keys(result).length;
-  const stream = fs.createReadStream(filePath).pipe(csvParser({ mapHeaders: ({ header }) => header.trim() }));
+  const stream = fs
+    .createReadStream(filePath)
+    .pipe(csvParser({ mapHeaders: ({ header }) => header.trim() }));
 
   return new Promise((resolve, reject) => {
     stream
       .on('data', chunk => {
         if (chunk[identifier]) {
           result[chunk[identifier]] = chunk;
-          logInfo({
-            serviceName: 'parseCVS',
-            data: {
-              [chunk[identifier]]: chunk,
-            },
-            message: `Found the identifier in the row... Adding it to the result obj, the length is ${resultLength++}`,
-          });
+          // logInfo({
+          //   serviceName: 'parseCVS',
+          //   data: {
+          //     [chunk[identifier]]: chunk,
+          //   },
+          //   message: `Found the identifier in the row... Adding it to the result obj, the length is ${resultLength++}`,
+          // });
         }
       })
       .on('end', () => {
-        logInfo({
-          serviceName: 'parseCVS',
-          data: {
-            filePath,
-            contentLength: Object.keys(result).length,
-          },
-          message: 'Succesfully Read the file',
-        });
+        // logInfo({
+        //   serviceName: 'parseCVS',
+        //   data: {
+        //     filePath,
+        //     contentLength: Object.keys(result).length,
+        //   },
+        //   message: 'Succesfully Read the file',
+        // });
 
         return resolve(result);
       })
       .on('error', error => {
-        logError({
-          serviceName: 'parseCVS',
-          error,
-          message: 'FAILURE while Reading the File',
-        });
+        // logError({
+        //   serviceName: 'parseCVS',
+        //   error,
+        //   message: 'FAILURE while Reading the File',
+        // });
         return reject(error);
       });
   });
@@ -84,7 +89,9 @@ export const parseCVS = (filePath: string, identifier: string): Promise<Record<s
 export const readCSV = (filePath: string, loggerInstance: any) => {
   let result: any[] = [];
   let resultLength = Object.keys(result).length;
-  const stream = fs.createReadStream(filePath).pipe(csvParser({ mapHeaders: ({ header }) => header.trim() }));
+  const stream = fs
+    .createReadStream(filePath)
+    .pipe(csvParser({ mapHeaders: ({ header }) => header.trim() }));
 
   return new Promise((resolve, reject) => {
     stream
@@ -239,7 +246,8 @@ export const updateURL = ({ value, baseUrl, request }) => {
   const _INJECTED_VALUE = value;
 
   const _ID_I_V =
-    (_INJECTED_VALUE && _INJECTED_VALUE === 'userId') || (_INJECTED_VALUE && _INJECTED_VALUE === 'orderId')
+    (_INJECTED_VALUE && _INJECTED_VALUE === 'userId') ||
+    (_INJECTED_VALUE && _INJECTED_VALUE === 'orderId')
       ? _BASE_URL
           .split('/')
           .map(e => {
@@ -280,5 +288,9 @@ export const updateURL = ({ value, baseUrl, request }) => {
           .join('=')
       : null;
 
-  return _INJECTED_VALUE ? (_INJECTED_VALUE === 'userId' || 'orderId' ? _ID_I_V : _EMAIL_I_V) : _BASE_URL;
+  return _INJECTED_VALUE
+    ? _INJECTED_VALUE === 'userId' || 'orderId'
+      ? _ID_I_V
+      : _EMAIL_I_V
+    : _BASE_URL;
 };

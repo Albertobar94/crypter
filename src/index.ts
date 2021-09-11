@@ -10,8 +10,7 @@ import csv from './commands/csv.command';
 dotenv.config();
 
 program
-  .version('0.8.1')
-  .showHelpAfterError()
+  .version('0.8.2')
 
   .addCommand(getEnv)
   .addCommand(user)
@@ -19,4 +18,5 @@ program
   .addCommand(csv)
   .addCommand(updateOrderId)
 
+  .showHelpAfterError()
   .parse(process.argv);

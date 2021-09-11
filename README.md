@@ -16,7 +16,7 @@ Internal script for User Service team
 ```bash
 AUTH_TOKEN="<Token>"
 SEGMENT_ID="<Default Segment Id>"
-USER_SERVICE_HOST="https://www.falabella.services/user"
+USER_SERVICE_HOST=""
 USER_ID="<Default User Id>"
 USER_EMAIL="<Default User Email>"
 ```

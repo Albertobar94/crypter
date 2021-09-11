@@ -3,7 +3,13 @@ import fs from 'fs';
 import { date } from '../../utils/helpers';
 import { logError, logInfo, logData } from '../../utils/logging';
 
-export const splitFile = async (filePath: string, lines = 100000, newFileName = 'new-split-file' + date()) => {
+export const splitFile = async (
+  filePath: string,
+  lines = 100000,
+  newFileName = 'new-split-file' + date(),
+) => {
+  if (!filePath) throw new Error('Bro, you need to add a filepath');
+
   let CSVResponse: any;
 
   logInfo({
