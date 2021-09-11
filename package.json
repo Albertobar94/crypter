@@ -1,0 +1,75 @@
+{
+  "name": "catalyst-user-script",
+  "version": "0.8.1",
+  "description": "Script for User-Service Team",
+  "main": "index.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "..."
+  },
+  "bin": {
+    "crypter": "lib/index.js"
+  },
+  "scripts": {
+    "lint": "eslint . -c .eslintrc.json --ext ts",
+    "lint:fix": "npm run lint -- --fix",
+    "build": "tsc",
+    "link": "npm install -g && chmod +x lib/index.js",
+    "install": "npm run build && npm run link",
+    "i": "npm run build && npm run link"
+  },
+  "devDependencies": {
+    "@types/clear": "^0.1.1",
+    "@types/figlet": "^1.5.1",
+    "@types/json2csv": "^5.0.3",
+    "@types/node": "^15.12.2",
+    "@types/pino": "^6.3.11",
+    "@typescript-eslint/eslint-plugin": "^4.26.1",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-prettier": "^3.4.0",
+    "prettier": "^2.3.1",
+    "prettier-eslint": "^12.0.0",
+    "typescript": "^4.3.2"
+  },
+  "engines": {
+    "node": ">=12.9.0",
+    "npm": ">=6.0.0"
+  },
+  "os": [
+    "darwin",
+    "linux"
+  ],
+  "jest": {
+    "clearMocks": true,
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "testEnvironment": "node"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "npm run lint:fix"
+    ]
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "clear": "^0.1.0",
+    "cli-progress": "^3.9.0",
+    "cli-spinners": "^2.6.0",
+    "commander": "^8.0.0",
+    "console-clear": "^1.1.1",
+    "csv-parser": "^3.0.0",
+    "csv-split-stream": "^1.0.2",
+    "dotenv": "^10.0.0",
+    "event-stream": "^4.0.1",
+    "figlet": "^1.5.0",
+    "got": "^11.8.2",
+    "json2csv": "^5.0.6",
+    "pino": "^6.13.1",
+    "pino-pretty": "^6.0.0",
+    "spinnies": "^0.5.1",
+    "stream": "^0.0.2"
+  }
+}
