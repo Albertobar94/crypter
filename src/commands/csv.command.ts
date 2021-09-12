@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { parseTuple } from '../utils/helpers';
 import { concatService } from '../services/csv/concat.service';
 import { extractService } from '../services/csv/extract.service';
-import { splitFile } from '../services/csv/split.service';
+import { splitFileService } from '../services/csv/split.service';
 import { bootstrap } from '../utils/bootstrap';
 
 type action = 'concat' | 'flatten' | 'split';
@@ -106,7 +106,7 @@ const csv = new Command()
           outputType: fileFormat,
         });
       case 'split':
-        return splitFile(file, lines, name);
+        return splitFileService({ file, lines, name, outputDir, debug });
       default:
         throw new Error();
     }
