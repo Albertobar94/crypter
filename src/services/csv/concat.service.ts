@@ -1,6 +1,16 @@
+import path from 'path/posix';
 import { normalizeData } from '../../utils/helpers';
 import { readFileStream, writeFile } from '../../utils/io';
-import { logError, logInfo, logData, logDebug } from '../../utils/logging';
+import {
+  logError,
+  logInfo,
+  logData,
+  logDebug,
+  _createLogger,
+  startLogger,
+  failLogger,
+  succeedLogger,
+} from '../../utils/logging';
 
 interface Props {
   files?: string;
@@ -24,6 +34,7 @@ const concatService = async ({ files, concatColumns, matchingValue, outputDir, d
   }
 
   let normalizedData: any[] = [];
+  const instance = _createLogger();
   const fs = files!.split(',');
   const cc = concatColumns!.split(',');
   const outputFile = `${outputDir}/concatenated-file.csv`;
@@ -37,6 +48,11 @@ const concatService = async ({ files, concatColumns, matchingValue, outputDir, d
   if (cc && cc.length < 1) throw Error('Columns must be at least one!');
 
   try {
+    startLogger({
+      instance,
+      name: 'concatService',
+      options: { text: 'Concatenating files...' },
+    });
     const promises = fs.map(fp => {
       return readFileStream({
         filePath: fp,
@@ -74,17 +90,21 @@ const concatService = async ({ files, concatColumns, matchingValue, outputDir, d
       columns: cc,
     });
   } catch (error) {
+    failLogger({
+      instance,
+      name: 'concatService',
+      options: { text: `Failed while creating file at ${path.join(process.env.PWD!, outputFile)}` },
+    });
     logError({
       message: 'ERROR while Running Concat Service',
     });
     console.error(error);
   } finally {
-    // logData({
-    //   data: {
-    //     outputFile,
-    //   },
-    //   message: `logDatafully Ran Concat Service. Output file is at ${outputFile}`,
-    // });
+    succeedLogger({
+      instance,
+      name: 'concatService',
+      options: { text: `Success` },
+    });
   }
 };
 

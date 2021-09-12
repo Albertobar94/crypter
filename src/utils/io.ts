@@ -1,6 +1,15 @@
 import { Parser } from 'json2csv';
 import fs from 'fs';
-import { logError, logInfo, logData, _createLogger, startLogger, succeedLogger, failLogger, logDebug } from './logging';
+import {
+  logError,
+  logInfo,
+  logData,
+  _createLogger,
+  startLogger,
+  succeedLogger,
+  failLogger,
+  logDebug,
+} from './logging';
 import { parseCVS, readCSV } from './helpers';
 import path from 'path';
 
@@ -31,7 +40,10 @@ export const readFile = async ({ filePath, parser = 'CSV', loggerInstance }: Pro
     return data;
   } catch (error) {
     if (loggerInstance) {
-      loggerInstance.fail('SP_R', { text: `FAILED while reading file at ${filePath}`, failColor: 'red' });
+      loggerInstance.fail('SP_R', {
+        text: `FAILED while reading file at ${filePath}`,
+        failColor: 'red',
+      });
     }
   }
 };
@@ -57,7 +69,11 @@ export const writeFile = async ({ filePath, content, parser = 'CSV', columns, de
 
   switch (parser) {
     case 'JSON':
-      startLogger({ instance, name: 'writeFile', options: { text: 'Writing file in Json format' } });
+      startLogger({
+        instance,
+        name: 'writeFile',
+        options: { text: 'Writing file in Json format' },
+      });
       contentParsed = JSON.stringify(content, null, 2);
       break;
     case 'CSV':
@@ -75,7 +91,7 @@ export const writeFile = async ({ filePath, content, parser = 'CSV', columns, de
     failLogger({
       instance,
       name: 'writeFile',
-      options: { text: `Failed while creating file at ${path.join(__dirname, filePath)}` },
+      options: { text: `Failed while creating file at ${path.join(process.env.PWD!, filePath)}` },
     });
     logError({
       message: `FAILED while Writing File with file path of ${filePath}`,
@@ -85,12 +101,16 @@ export const writeFile = async ({ filePath, content, parser = 'CSV', columns, de
     succeedLogger({
       instance,
       name: 'writeFile',
-      options: { text: `created file at ${path.join(__dirname, filePath)}` },
+      options: { text: `created file at ${path.join(process.env.PWD!, filePath)}` },
     });
   }
 };
 
-export const readFileStream = async ({ filePath, parser = 'CSV', identifier = 'user_id' }: Props) => {
+export const readFileStream = async ({
+  filePath,
+  parser = 'CSV',
+  identifier = 'user_id',
+}: Props) => {
   switch (parser) {
     case 'CSV':
       return parseCVS(filePath, identifier);

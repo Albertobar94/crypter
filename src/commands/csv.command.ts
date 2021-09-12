@@ -3,6 +3,7 @@ import { parseTuple } from '../utils/helpers';
 import { concatService } from '../services/csv/concat.service';
 import { extractService } from '../services/csv/extract.service';
 import { splitFile } from '../services/csv/split.service';
+import { bootstrap } from '../utils/bootstrap';
 
 type action = 'concat' | 'flatten' | 'split';
 
@@ -69,7 +70,7 @@ const csv = new Command()
   .option(parseTuple(outputDir))
   .option(parseTuple(debug))
 
-  .action((action: action, options) => {
+  .action(async (action: action, options) => {
     const {
       concatColumns,
       debug,
@@ -82,6 +83,8 @@ const csv = new Command()
       name,
       outputDir,
     } = options;
+
+    await bootstrap();
 
     switch (action) {
       case 'concat':
