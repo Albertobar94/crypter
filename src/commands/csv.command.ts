@@ -9,7 +9,7 @@ type action = 'concat' | 'flatten' | 'split';
 
 const CONFIG = {
   command: 'csv <action>',
-  description: ' Concat information in the same rows for CSV files...',
+  description: 'concat | flatten | split, Csv files...',
   options: {
     files: ['-fs, --files <paths>', 'File names paths separated by ",". Type: String'],
     file: ['-f, --file <path> ', 'File name. Type: String'],

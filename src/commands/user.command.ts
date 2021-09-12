@@ -8,7 +8,7 @@ import { bootstrap } from '../utils/bootstrap';
 
 const METADATA = {
   command: 'user <action>',
-  description: 'Get, Update, Delete a single user',
+  description: 'Get | Update | Delete | validate, users',
   options: {
     userId: ['-id, --userId <id>', 'get user details by userId'],
     userEmail: ['-e, --userEmail <email>', 'get user details by emailId'],
@@ -53,7 +53,8 @@ const user = new Command()
   .option(parseTuple(debug))
   .action(async (action: action, options) => {
     await bootstrap();
-    const { userId, userEmail, debug, file, fileFormat, outputFile, outputDir, validateBy } = options;
+    const { userId, userEmail, debug, file, fileFormat, outputFile, outputDir, validateBy } =
+      options;
 
     switch (action) {
       case 'get':
@@ -61,7 +62,6 @@ const user = new Command()
       case 'import':
         return importUserService({ filePath: file, outputDir });
       case 'delete':
-        // return deleteUserService({ userId, outputPath, debug });
         return deleteUsersService({ filePath: file, fileFormat, outputPath: outputDir, debug });
       case 'validate':
         return validateUsersService({

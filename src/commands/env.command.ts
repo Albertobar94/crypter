@@ -23,7 +23,7 @@ type action = 'get';
 
 const getEnv = new Command()
   .command('env <action>')
-  .description('get environment variables')
+  .description('get, environment variables')
   .action((action: action) => {
     switch (action) {
       default:

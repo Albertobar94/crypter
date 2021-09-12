@@ -4,12 +4,12 @@ import { parseTuple } from '../utils/helpers';
 
 const METADATA = {
   command: 'orders <action>',
-  description: ' Extract information from a specific column as a JSON value' + '\n' + '\n',
+  description: 'update, information for a user order',
   options: {
-    file: ['-f, --file <path> ', ' STRING: file name path'],
-    fileFormat: ['-ff, --fileFormat <format> ', ' STRING: file format to read'],
-    outputDir: ['-o, --outputPath <path> ', ' STRING: Output folder Path'],
-    debug: ['-d, --debug', ' BOOLEAN'],
+    file: ['-f, --file <path> ', 'file path. Type: String'],
+    fileFormat: ['-ff, --fileFormat <format> ', 'format to read file. Type: String'],
+    outputDir: ['-o, --outputPath <path> ', 'Output directory. Type: String'],
+    debug: ['-d, --debug', 'Type: Boolean'],
   },
 };
 
@@ -32,7 +32,12 @@ const updateOrderId = new Command()
     const { file, fileFormat, outputDir, debug } = options;
     switch (action) {
       default:
-        return updateOrder({ filePath: file, fileFormat, outputPath: outputDir, debugLevel: debug });
+        return updateOrder({
+          filePath: file,
+          fileFormat,
+          outputPath: outputDir,
+          debugLevel: debug,
+        });
     }
   });
 
