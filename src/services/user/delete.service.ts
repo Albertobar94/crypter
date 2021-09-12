@@ -1,10 +1,12 @@
 import inquirer from 'inquirer';
+
+import { getUser as getUserBackup } from './get.service';
+
 import { doSequencialRequest } from '../../utils/requestSequencially';
 import { exportReport } from '../../utils/io';
 import { readFile } from '../../utils/io';
 import { failLogger, startLogger, succeedLogger, createLogger } from '../../utils/logging';
 import { halt } from '../../utils/bootstrap';
-import { getUser as getUserBackup } from './get.service';
 
 interface Props {
   userId: string;
@@ -28,16 +30,16 @@ const deleteUsers = async ({
   if (!userId && !file && !userEmail) throw new Error('File, userId or emailId must be specified');
   if (!outputDir) throw new Error('Output path must be given');
 
-  const _URL = userId
+  const _url = userId
     ? `${process.env.USER_SERVICE_HOST}/v1/users/${userId}`
     : `${process.env.USER_SERVICE_HOST}/v1/users/:userId`;
-  const _logData_EXPORT_PATH = `${outputDir}/success.${fileFormat.toLocaleLowerCase()}`;
-  const _ERRORS_EXPORT_PATH = `${outputDir}/error.${fileFormat.toLocaleLowerCase()}`;
-  const _USER = userId ?? userEmail;
+  const _logData_exportPath = `${outputDir}/success.${fileFormat.toLocaleLowerCase()}`;
+  const _errors_exportPath = `${outputDir}/error.${fileFormat.toLocaleLowerCase()}`;
+  const _user = userId ?? userEmail;
   let instance: any;
 
   try {
-    switch (_USER) {
+    switch (_user) {
       case undefined:
         const data = await readFile({
           file,
@@ -66,7 +68,7 @@ const deleteUsers = async ({
           intervalTime: 3,
           concurrency: 2500,
           pauseTime: 2500,
-          url: _URL,
+          url: _url,
           injectValue: 'userId',
           method: 'DELETE',
           headers: {
@@ -92,14 +94,14 @@ const deleteUsers = async ({
           debug,
         });
 
-        await exportReport(logData, _logData_EXPORT_PATH);
-        await exportReport(errors, _ERRORS_EXPORT_PATH);
+        await exportReport(logData, _logData_exportPath);
+        await exportReport(errors, _errors_exportPath);
         break;
       default:
         const { first } = await inquirer.prompt({
           type: 'confirm',
           name: 'first',
-          message: `Would you like to delete user ${_USER}?`,
+          message: `Would you like to delete user ${_user}?`,
           default: false,
         });
         if (!first) break;

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { _makeUserEmailUrl, _makeUserIdUrl } from '../../utils/helpers';
 import { writeFile } from '../../utils/io';
 import { logData, logDebug, logError } from '../../utils/logging';
 
@@ -12,27 +13,6 @@ interface getUserProps {
   _hideLogs?: boolean;
 }
 
-const _USER_ID_URI = (userId: string, includes: getUserProps['includes']) => {
-  if (includes && includes !== 'none') {
-    return `${process.env.USER_SERVICE_HOST}/v1/users/${
-      userId.toString() !== 'true' ? userId.trim() : process.env.USER_ID
-    }?includes=segments,organizations,addresses,preferences`;
-  }
-  return `${process.env.USER_SERVICE_HOST}/v1/users/${
-    userId.toString() !== 'true' ? userId.trim() : process.env.USER_ID
-  }`;
-};
-const _EMAIL_URI = (emailId: string, includes: getUserProps['includes']) => {
-  if (includes && includes !== 'none') {
-    return `${process.env.USER_SERVICE_HOST}/v1/users?emailId=${
-      emailId.toString() !== 'true' ? emailId.trim() : process.env.USER_EMAIL
-    }&includes=segments,organizations,addresses,preferences`;
-  }
-  return `${process.env.USER_SERVICE_HOST}/v1/users?emailId=${
-    emailId.toString() !== 'true' ? emailId.trim() : process.env.USER_EMAIL
-  }`;
-};
-
 const getUser = async ({
   userId,
   userEmail,
@@ -43,17 +23,17 @@ const getUser = async ({
   _hideLogs = false,
 }: getUserProps) => {
   let response: any;
-  let _URI = userId ? _USER_ID_URI : _EMAIL_URI;
-  const _USER_ID = userId ? userId : userEmail;
+  let _makeUserUrl = userId ? _makeUserIdUrl : _makeUserEmailUrl;
+  const _user = userId ? userId : userEmail;
 
   if (debug) {
     logDebug({
-      message: `Id: ${_USER_ID}, Url: ${_URI(_USER_ID!, includes)}`,
+      message: `Id: ${_user}, Url: ${_makeUserUrl(_user!, includes)}`,
     });
   }
 
   try {
-    response = await axios.get(_URI(_USER_ID!, includes), {
+    response = await axios.get(_makeUserUrl(_user!, includes), {
       headers: {
         Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
       },
@@ -76,14 +56,14 @@ const getUser = async ({
     }
 
     return await writeFile({
-      outputFile: `${outputDir}/${_USER_ID}.${fileFormat.toLocaleLowerCase()}`,
+      outputFile: `${outputDir}/${_user}.${fileFormat.toLocaleLowerCase()}`,
       parser: fileFormat,
       content: userId ? response.data.data.user : response.data.data,
       debug,
     });
   } catch (error) {
     logError({
-      message: `Id: ${_USER_ID}`,
+      message: `Id: ${_user}`,
     });
     console.error(error);
   }

@@ -3,8 +3,6 @@ import { normalizeData } from '../../utils/transformers';
 import { readFile, writeFile } from '../../utils/io';
 import {
   logError,
-  logInfo,
-  logData,
   logDebug,
   createLogger,
   startLogger,

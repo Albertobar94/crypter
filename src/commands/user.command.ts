@@ -1,8 +1,10 @@
 import { Command } from 'commander';
 import { getUser as getUserService } from '../services/user/get.service';
-import { importUser as importUserService } from '../services/user/import.service';
-import { deleteUsers as deleteUsersService } from '../services/user/delete.service';
-import { validateUsers as validateUsersService } from '../services/user/validate.service';
+import {
+  importUser as importUserService,
+  deleteUsers as deleteUsersService,
+  validateUsers as validateUsersService,
+} from '../services/user';
 import { parseTuple } from '../utils/helpers';
 import { bootstrap } from '../utils/bootstrap';
 
@@ -18,7 +20,6 @@ type CONFIG = {
     dryRun: boolean;
     file: string;
     fileFormat: 'csv' | 'json';
-    outputFile: string;
     outputDir: string;
     validateBy: 'userId' | 'emailId';
   };
@@ -38,8 +39,6 @@ const CONFIG = {
     file: ['-f, --file <path> ', ' STRING: file name path'],
     fileFormat: ['-ff, --fileFormat <format> ', ' STRING: file format to read'],
 
-    // TODO deprecate
-    outputFile: ['-of, --outputFile <path> ', ' STRING: Output folder Path'],
     outputDir: ['-o, --outputDir <path>', 'STRING: Value path to output Directory for reports'],
 
     property: ['-p, --property <property> ', ' STRING: Property or Column to get userId'],
@@ -53,18 +52,7 @@ const CONFIG = {
 const {
   command,
   description,
-  options: {
-    userId,
-    userEmail,
-    includes,
-    debug,
-    dryRun,
-    file,
-    fileFormat,
-    outputFile,
-    outputDir,
-    validateBy,
-  },
+  options: { userId, userEmail, includes, debug, dryRun, file, fileFormat, outputDir, validateBy },
 } = CONFIG;
 
 const user = new Command()
@@ -77,7 +65,6 @@ const user = new Command()
   .option(parseTuple(file))
   .option(parseTuple(fileFormat))
 
-  .option(parseTuple(outputFile))
   .option(parseTuple(outputDir))
 
   .option(parseTuple(validateBy))
@@ -87,18 +74,9 @@ const user = new Command()
 
   .action(async (action: action, options: CONFIG['options']) => {
     await bootstrap();
-    const {
-      userId,
-      userEmail,
-      includes,
-      debug,
-      dryRun,
-      file,
-      fileFormat,
-      outputFile,
-      outputDir,
-      validateBy,
-    } = options;
+
+    const { userId, userEmail, includes, debug, dryRun, file, fileFormat, outputDir, validateBy } =
+      options;
 
     switch (action) {
       case 'get':

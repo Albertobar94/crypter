@@ -59,16 +59,14 @@ const flattenService = async ({
     if (!flattenPath) throw new Error('flattenPath must be specified');
     if (!outputDir) throw new Error('outputDir must be specified');
 
-    // Read Stage //
     updateLogger({
       name: 'flattenService',
       instance: instance,
       options: { text: 'Reading file in flattenService...' },
     });
-    // spinnies.update('SP_ES');
+
     const data = await readFile({ file, parser: fileFormat });
 
-    // Transform Stage //
     updateLogger({
       name: 'flattenService',
       instance: instance,

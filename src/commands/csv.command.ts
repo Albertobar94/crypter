@@ -1,8 +1,6 @@
 import { Command } from 'commander';
 import { parseTuple } from '../utils/helpers';
-import { concatService } from '../services/csv/concat.service';
-import { flattenService } from '../services/csv/extract.service';
-import { splitFileService } from '../services/csv/split.service';
+import { concatService, flattenService, splitFileService } from '../services/csv';
 import { bootstrap } from '../utils/bootstrap';
 
 type action = 'concat' | 'flatten' | 'split';
@@ -85,6 +83,8 @@ const csv = new Command()
   .option(parseTuple(debug))
 
   .action(async (action: action, options: CONFIG['options']) => {
+    await bootstrap();
+
     const {
       columns,
       debug,
@@ -97,8 +97,6 @@ const csv = new Command()
       name,
       outputDir,
     } = options;
-
-    await bootstrap();
 
     switch (action) {
       case 'concat':

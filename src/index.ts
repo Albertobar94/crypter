@@ -3,7 +3,7 @@ import { program } from 'commander';
 import dotenv from 'dotenv';
 import getEnv from './commands/env.command';
 import user from './commands/user.command';
-import getCount from './commands/reports/get-count.command';
+// import getCount from '../_files/reports/get-count.command';
 import updateOrderId from './commands/orders.command';
 import csv from './commands/csv.command';
 
@@ -14,7 +14,7 @@ program
 
   .addCommand(getEnv)
   .addCommand(user)
-  .addCommand(getCount)
+  // .addCommand(getCount)
   .addCommand(csv)
   .addCommand(updateOrderId)
 

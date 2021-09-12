@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import { updateOrder } from '../services/orders/update.service';
+import { bootstrap } from '../utils/bootstrap';
 import { parseTuple } from '../utils/helpers';
 
 type CONFIG = {
@@ -34,8 +35,11 @@ const updateOrderId = new Command()
   .option(parseTuple(fileFormat))
   .option(parseTuple(outputDir))
   .option(parseTuple(debug))
-  .action((action: action, options: CONFIG['options']) => {
+  .action(async (action: action, options: CONFIG['options']) => {
+    await bootstrap();
+
     const { file, fileFormat, outputDir, debug } = options;
+
     switch (action) {
       default:
         return updateOrder({

@@ -1,5 +1,7 @@
 import { logInfo } from './logging';
 
+type includes = 'all' | 'none';
+
 export const date = () => {
   const year = new Date().getFullYear();
   const month = new Date().getMonth();
@@ -64,4 +66,26 @@ export const updateURL = ({ value, baseUrl, request }) => {
       ? _ID_I_V
       : _EMAIL_I_V
     : _BASE_URL;
+};
+
+export const _makeUserIdUrl = (userId: string, includes: includes) => {
+  if (includes && includes !== 'none') {
+    return `${process.env.USER_SERVICE_HOST}/v1/users/${
+      userId.toString() !== 'true' ? userId.trim() : process.env.USER_ID
+    }?includes=segments,organizations,addresses,preferences`;
+  }
+  return `${process.env.USER_SERVICE_HOST}/v1/users/${
+    userId.toString() !== 'true' ? userId.trim() : process.env.USER_ID
+  }`;
+};
+
+export const _makeUserEmailUrl = (emailId: string, includes: includes) => {
+  if (includes && includes !== 'none') {
+    return `${process.env.USER_SERVICE_HOST}/v1/users?emailId=${
+      emailId.toString() !== 'true' ? emailId.trim() : process.env.USER_EMAIL
+    }&includes=segments,organizations,addresses,preferences`;
+  }
+  return `${process.env.USER_SERVICE_HOST}/v1/users?emailId=${
+    emailId.toString() !== 'true' ? emailId.trim() : process.env.USER_EMAIL
+  }`;
 };

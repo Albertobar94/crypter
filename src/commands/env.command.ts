@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import dotenv from 'dotenv';
+import { bootstrap } from '../utils/bootstrap';
 
 dotenv.config();
 
@@ -20,7 +21,9 @@ type action = 'get';
 const getEnv = new Command()
   .command('env <action>')
   .description('get, environment variables')
-  .action((action: action) => {
+  .action(async (action: action) => {
+    await bootstrap();
+
     switch (action) {
       default:
         return showAllEnvVars();
