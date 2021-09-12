@@ -1,7 +1,8 @@
 import got from 'got/dist/source';
-import { exportReport, transformRecordForUserImport } from '../../utils/helpers';
+import { exportReport } from '../../utils/io';
 import { readFile } from '../../utils/io';
 import { logData, logInfo, logError } from '../../utils/logging';
+import { transformRecordForUserImport } from '../../utils/transformers';
 
 const METADATA = {
   importUser: 'importUser',
@@ -94,7 +95,10 @@ const importUser = async ({ filePath, outputDir }: Props) => {
                 },
               };
 
-              if (typeof formattedError.statusCode === 'string' || formattedError.statusCode >= 500) {
+              if (
+                typeof formattedError.statusCode === 'string' ||
+                formattedError.statusCode >= 500
+              ) {
                 retryableErrors.push(formattedError);
               } else {
                 nonRetryableErrors.push(formattedError);

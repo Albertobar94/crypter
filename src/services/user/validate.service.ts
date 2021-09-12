@@ -1,5 +1,5 @@
 import { doSequencialRequest } from '../../utils/requestSequencially';
-import { exportReport } from '../../utils/helpers';
+import { exportReport } from '../../utils/io';
 import { readFile } from '../../utils/io';
 import { createLogger, failLogger, succeedLogger, updateLogger } from '../../utils/logging';
 
@@ -40,7 +40,10 @@ const validateUsers = async ({
     const _ERRORS_EXPORT_PATH = `${outputPath}/errors.${fileFormat.toLocaleLowerCase()}`;
 
     // Logging //
-    loggerInstance = createLogger({ name: _LOGGER_NAME, options: { text: 'Running validateUsers...' } });
+    loggerInstance = createLogger({
+      name: _LOGGER_NAME,
+      options: { text: 'Running validateUsers...' },
+    });
 
     // Read stage //
     const data = await readFile({ filePath, parser: fileFormat, loggerInstance });
@@ -107,7 +110,11 @@ const validateUsers = async ({
     });
 
     // Export Stage
-    updateLogger({ instance: loggerInstance, name: _LOGGER_NAME, options: { text: 'Running exportReport...' } });
+    updateLogger({
+      instance: loggerInstance,
+      name: _LOGGER_NAME,
+      options: { text: 'Running exportReport...' },
+    });
     await exportReport(logData, _logData_EXPORT_PATH);
     await exportReport(errors, _ERRORS_EXPORT_PATH);
   } catch (error) {

@@ -14,16 +14,16 @@ const CONFIG = {
     files: ['-fs, --files <paths>', 'File names paths separated by ",". Type: String'],
     file: ['-f, --file <path> ', 'File name. Type: String'],
     fileFormat: ['-ff, --fileFormat <format> ', 'File format to Read and Parse file. Type: String'],
-    concatColumns: [
-      '-c, --concatColumns <columns>',
-      'Names of columns to concatenate values in the same row separated by ",". Type: String',
+    columns: [
+      '-c, --columns <columns>',
+      'Names of columns to be in the new file, separated by ",". Type: String',
     ],
     matchingValue: [
       '-mv, --matchingValue <value>',
       'Value to be present in both rows for concatenation. Type: String',
     ],
     flattenPath: [
-      '-pe, --flattenPath <path>',
+      '-fp, --flattenPath <path>',
       '<Key>.<Key>.<key>...<Value>. Type: String, Object like access path to value',
     ],
     lines: ['-l, --lines <number>', 'Number of lines to split. Type: Number'],
@@ -37,7 +37,7 @@ const {
   command,
   description,
   options: {
-    concatColumns,
+    columns,
     debug,
     file,
     files,
@@ -57,7 +57,7 @@ const csv = new Command()
   .option(parseTuple(files))
   .option(parseTuple(fileFormat))
 
-  .option(parseTuple(concatColumns))
+  .option(parseTuple(columns))
 
   .option(parseTuple(matchingValue))
   .option(parseTuple(flattenPath))
@@ -70,7 +70,7 @@ const csv = new Command()
 
   .action(async (action: action, options) => {
     const {
-      concatColumns,
+      columns,
       debug,
       file,
       files,
@@ -88,22 +88,21 @@ const csv = new Command()
       case 'concat':
         return concatService({
           files,
-          concatColumns,
+          concatColumns: columns,
           matchingValue,
           outputDir,
           name,
           debug,
         });
       case 'flatten':
-        // TODO update outputFile to accept outputDir
         return extractService({
           filePath: file,
-          columns: concatColumns,
+          columns,
           pToExtract: flattenPath,
-          pToInsert: '',
-          valueToInsert: '',
-          outputFile: outputDir,
-          outputType: fileFormat,
+          outputDir,
+          name,
+          fileFormat,
+          debug,
         });
       case 'split':
         return splitFileService({ file, lines, name, outputDir, debug });

@@ -1,91 +1,106 @@
-import { getBodyForImport } from '../../utils/helpers';
+import { date } from '../../utils/helpers';
 import { readFile, readFileStream, writeFile } from '../../utils/io';
-import { createLogger, logError, failLogger, logInfo, succeedLogger, logData, updateLogger } from '../../utils/logging';
+import {
+  createLogger,
+  logError,
+  failLogger,
+  logInfo,
+  succeedLogger,
+  logData,
+  updateLogger,
+  logDebug,
+  _createLogger,
+  startLogger,
+} from '../../utils/logging';
+import { extractNestedData } from '../../utils/transformers';
 
 interface Props {
   filePath?: string;
   columns: string;
   pToExtract?: string;
-  pToInsert?: string;
-  outputFile: string;
-  outputType?: 'CSV' | 'JSON';
-  valueToInsert?: string;
+  outputDir: string;
+  fileFormat?: 'CSV' | 'JSON';
+  name?: string;
   transformer?: (data: any) => void;
+  debug?: boolean;
 }
 
 const extractService = async ({
   filePath,
   columns,
   pToExtract,
-  pToInsert,
-  valueToInsert,
-  outputFile,
-  outputType,
-  transformer = getBodyForImport,
+  outputDir,
+  fileFormat,
+  name,
+  transformer = extractNestedData,
+  debug,
 }: Props) => {
-  const _LOGGER_NAME = 'SP_ES';
-  const loggerInstance = createLogger({ name: _LOGGER_NAME, options: { text: 'Running extractService...' } });
+  const instance = _createLogger();
+  startLogger({
+    instance,
+    name: 'extractService',
+    options: { text: 'Running extractService...' },
+  });
+
+  if (debug) {
+    logDebug({
+      message: 'Debugging...',
+      data: {
+        filePath,
+        columns,
+        pToExtract,
+        outputDir,
+        fileFormat,
+        name,
+      },
+    });
+  }
 
   try {
-    if (!filePath) throw new Error();
+    if (!filePath) throw new Error('File must be specified');
+    if (!columns) throw new Error('Columns must be specified');
+    if (!pToExtract) throw new Error('pToExtract must be specified');
+    if (!outputDir) throw new Error('outputDir must be specified');
 
     // Read Stage //
     updateLogger({
-      name: _LOGGER_NAME,
-      instance: loggerInstance,
+      name: 'extractService',
+      instance: instance,
       options: { text: 'Reading file in extractService...' },
     });
     // spinnies.update('SP_ES');
-    const data = await readFile({ filePath, parser: outputType, loggerInstance });
+    const data = await readFile({ filePath, parser: fileFormat, loggerInstance: instance });
 
     // Transform Stage //
     updateLogger({
-      name: _LOGGER_NAME,
-      instance: loggerInstance,
+      name: 'extractService',
+      instance: instance,
       options: { text: 'Processing data from file in extractService...' },
     });
-    // spinnies.update('SP_ES', { text: 'Processing data from file in extractService...' });
-    const content = transformer({ data, pToExtract, columns });
+    const content = transformer({ data, pToExtract, columns, debug });
 
-    updateLogger({
-      name: _LOGGER_NAME,
-      instance: loggerInstance,
-      options: { text: 'Writing file to disk in extractService...' },
-    });
-    // spinnies.update('SP_ES', { text: 'Writing file to disk in extractService...' });
     writeFile({
-      filePath: outputFile,
-      parser: outputType,
-      columns: ['data', ...columns.split(',')],
+      filePath: name ? `${outputDir}/${name}.csv` : `${outputDir}/extracted-data-${date()}.csv`,
+      parser: fileFormat,
+      columns: [pToExtract!.split('.')[0], ...columns.split(',')],
       content,
     });
   } catch (error) {
     failLogger({
-      name: _LOGGER_NAME,
-      instance: loggerInstance,
+      name: 'extractService',
+      instance: instance,
       options: { text: 'FAILED to execute extractService...' },
     });
-    // spinnies.fail('SP_ES', { text: 'FAILED to execute extractService...' });
+    logError({
+      message: 'ERROR while Running Extract CSV Service',
+    });
     console.error(error);
-    // ERROR({
-    //   serviceName: 'extractService',
-    //   error,
-    //   message: 'ERROR while Running Extract CSV Service',
-    // });
   } finally {
     succeedLogger({
-      name: _LOGGER_NAME,
-      instance: loggerInstance,
-      options: { text: 'logData executing extractService...' },
+      name: 'extractService',
+      instance: instance,
+      options: { text: 'Success...' },
     });
-    // spinnies.succeeded('SP_ES', { text: 'logData executing extractService...' });
-    // logData({
-    //   serviceName: 'extractService',
-    //   data: {
-    //     filePath: outputFile,
-    //   },
-    //   message: `logDatafully Ran Extract Service. Output file is ${outputFile}`,
-    // });
   }
 };
 

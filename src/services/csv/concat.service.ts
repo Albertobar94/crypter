@@ -1,5 +1,5 @@
 import path from 'path/posix';
-import { normalizeData } from '../../utils/helpers';
+import { normalizeData } from '../../utils/transformers';
 import { readFileStream, writeFile } from '../../utils/io';
 import {
   logError,

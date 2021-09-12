@@ -1,7 +1,13 @@
 import { doSequencialRequest } from '../../utils/requestSequencially';
-import { exportReport } from '../../utils/helpers';
+import { exportReport } from '../../utils/io';
 import { readFile } from '../../utils/io';
-import { createLogger, failLogger, logInfo, succeedLogger, updateLogger } from '../../utils/logging';
+import {
+  createLogger,
+  failLogger,
+  logInfo,
+  succeedLogger,
+  updateLogger,
+} from '../../utils/logging';
 
 interface Props {
   filePath: string;
@@ -10,7 +16,12 @@ interface Props {
   debugLevel: boolean;
 }
 
-const updateOrder = async ({ filePath, fileFormat = 'CSV', outputPath, debugLevel: debug }: Props) => {
+const updateOrder = async ({
+  filePath,
+  fileFormat = 'CSV',
+  outputPath,
+  debugLevel: debug,
+}: Props) => {
   let loggerInstance: any;
   let _LOGGER_NAME: string = 'OR_1';
 
@@ -27,7 +38,10 @@ const updateOrder = async ({ filePath, fileFormat = 'CSV', outputPath, debugLeve
     const _URL = `${process.env.ORDERS_SERVICE_HOST}/v1/orders/:orderId/associateAccount`;
 
     // Logging //
-    loggerInstance = createLogger({ name: _LOGGER_NAME, options: { text: 'Running updateOrder...' } });
+    loggerInstance = createLogger({
+      name: _LOGGER_NAME,
+      options: { text: 'Running updateOrder...' },
+    });
 
     // Read stage //
     const data = await readFile({ filePath, parser: fileFormat, loggerInstance });
@@ -80,7 +94,11 @@ const updateOrder = async ({ filePath, fileFormat = 'CSV', outputPath, debugLeve
     });
 
     // Export Stage
-    updateLogger({ instance: loggerInstance, name: _LOGGER_NAME, options: { text: 'Running exportReport...' } });
+    updateLogger({
+      instance: loggerInstance,
+      name: _LOGGER_NAME,
+      options: { text: 'Running exportReport...' },
+    });
     await exportReport(logData, _logData_EXPORT_PATH);
     await exportReport(errors, _ERRORS_EXPORT_PATH);
   } catch (error) {
