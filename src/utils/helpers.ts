@@ -22,16 +22,18 @@ export const parseTuple = (arr: string[]): string => {
   return `${arr}`;
 };
 
-export const normalizeData = ({ columns, arr, identifier }) => {
+export const normalizeData = ({ columns, arr, matchingValue, debug }) => {
   const one = columns.map(column => {
-    // logInfo({
-    //   serviceName: 'normalizeData',
-    //   message: `PROCESSING column ${column} with a value of ${
-    //     arr[0][identifier][column] || arr[1][identifier][column]
-    //   } in identifier ${identifier}`,
-    // });
+    if (debug) {
+      logInfo({
+        serviceName: 'normalizeData',
+        message: `PROCESSING column ${column} with a value of ${
+          arr[0][matchingValue][column] || arr[1][matchingValue][column]
+        } in matchingValue ${matchingValue}`,
+      });
+    }
     return {
-      [column]: arr[0][identifier][column] || arr[1][identifier][column],
+      [column]: arr[0][matchingValue][column] || arr[1][matchingValue][column],
     };
   });
 

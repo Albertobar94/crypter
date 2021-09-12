@@ -18,9 +18,17 @@ interface Props {
   matchingValue?: string;
   outputDir: string;
   debug: boolean;
+  name?: string;
 }
 
-const concatService = async ({ files, concatColumns, matchingValue, outputDir, debug }: Props) => {
+const concatService = async ({
+  files,
+  concatColumns,
+  matchingValue,
+  outputDir,
+  name,
+  debug,
+}: Props) => {
   if (debug) {
     logDebug({
       data: {
@@ -37,7 +45,8 @@ const concatService = async ({ files, concatColumns, matchingValue, outputDir, d
   const instance = _createLogger();
   const fs = files!.split(',');
   const cc = concatColumns!.split(',');
-  const outputFile = `${outputDir}/concatenated-file.csv`;
+  const outputFile =
+    name && name !== '' ? `${outputDir}/${name}.csv` : `${outputDir}/concatenated-file.csv`;
 
   if (!files) throw new Error('File Paths must be specified');
   if (!concatColumns) throw new Error('concatColumns must be specified');
@@ -67,7 +76,8 @@ const concatService = async ({ files, concatColumns, matchingValue, outputDir, d
         const data = normalizeData({
           columns: cc,
           arr: [first, second],
-          identifier: matchingValue,
+          matchingValue,
+          debug,
         });
         normalizedData.push(data);
       } else {

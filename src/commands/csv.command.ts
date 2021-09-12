@@ -11,27 +11,25 @@ const CONFIG = {
   command: 'csv <action>',
   description: ' Concat information in the same rows for CSV files...',
   options: {
-    files: ['-fs, --files <paths> ', ' STRING: file names paths delimited by "," '],
-    file: ['-f, --file <path> ', ' STRING: file names paths delimited by "," '],
-    fileFormat: ['-ff, --fileFormat <format> ', ' STRING: file format to read'],
-
+    files: ['-fs, --files <paths>', 'File names paths separated by ",". Type: String'],
+    file: ['-f, --file <path> ', 'File name. Type: String'],
+    fileFormat: ['-ff, --fileFormat <format> ', 'File format to Read and Parse file. Type: String'],
     concatColumns: [
       '-c, --concatColumns <columns>',
-      ' STRING: of Column names to concat in the same row delimited by ","',
+      'Names of columns to concatenate values in the same row separated by ",". Type: String',
     ],
-
     matchingValue: [
       '-mv, --matchingValue <value>',
-      'STRING: Value to be present for each row to be concatenated',
+      'Value to be present in both rows for concatenation. Type: String',
     ],
-    flattenPath: ['-pe, --flattenPath <path>', 'STRING: <Key>.<Key>.<key> -> <Value> '],
-
-    lines: ['-l, --lines <number>', 'Number of lines to split'],
-    name: ['-n, --name <newName>', 'new Name for split File'],
-
-    outputDir: ['-o, --outputDir <path>', 'STRING: Value path to output file'],
-
-    debug: ['-d, --debug', 'output extra debugging'],
+    flattenPath: [
+      '-pe, --flattenPath <path>',
+      '<Key>.<Key>.<key>...<Value>. Type: String, Object like access path to value',
+    ],
+    lines: ['-l, --lines <number>', 'Number of lines to split. Type: Number'],
+    name: ['-n, --name <newName>', 'Name for output file. Type: String'],
+    outputDir: ['-o, --outputDir <path>', 'Path to output directory. Type: String'],
+    debug: ['-d, --debug', 'Debug process. Type: Boolean, Default: false'],
   },
 };
 
@@ -93,6 +91,7 @@ const csv = new Command()
           concatColumns,
           matchingValue,
           outputDir,
+          name,
           debug,
         });
       case 'flatten':
