@@ -111,7 +111,7 @@ const user = new Command()
           debug,
         });
       case 'import':
-        return importUserService({ filePath: file, outputDir });
+        return importUserService({ file, outputDir });
       case 'delete':
         return deleteUsersService({
           userId,
@@ -124,7 +124,7 @@ const user = new Command()
         });
       case 'validate':
         return validateUsersService({
-          filePath: file,
+          file,
           fileFormat,
           // TODO remove this
           property: '',

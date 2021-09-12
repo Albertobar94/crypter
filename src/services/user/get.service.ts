@@ -76,7 +76,7 @@ const getUser = async ({
     }
 
     return await writeFile({
-      filePath: `${outputDir}/${_USER_ID}.${fileFormat.toLocaleLowerCase()}`,
+      outputFile: `${outputDir}/${_USER_ID}.${fileFormat.toLocaleLowerCase()}`,
       parser: fileFormat,
       content: userId ? response.data.data.user : response.data.data,
       debug,

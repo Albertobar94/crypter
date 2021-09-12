@@ -9,11 +9,11 @@ const METADATA = {
 };
 
 interface Props {
-  filePath?: string;
+  file?: string;
   outputDir?: string;
 }
 
-const importUser = async ({ filePath, outputDir }: Props) => {
+const importUser = async ({ file, outputDir }: Props) => {
   const EXPORT_PATH_logData_REPORT = `${outputDir}/PROD-import-user-logData.csv`;
   const EXPORT_PATH_RETRYABLE_ERROR_REPORT = `${outputDir}/PROD-import-user-retryable-error.csv`;
   const EXPORT_PATH_NON_RETRYABLE_ERROR_REPORT = `${outputDir}/PROD-import-user-non-retryable-error.csv`;
@@ -25,9 +25,9 @@ const importUser = async ({ filePath, outputDir }: Props) => {
   const retryableErrors: any[] = [];
 
   try {
-    if (!filePath) throw new Error();
+    if (!file) throw new Error();
 
-    const data = await readFile({ filePath, parser: 'csv' });
+    const data = await readFile({ file, parser: 'csv' });
 
     const requestBodys = data.map(record => {
       return transformRecordForUserImport(record);

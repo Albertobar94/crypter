@@ -154,13 +154,13 @@ const orderCountForJwts = (data: any) => {
   );
 };
 
-const getCountForIps = async (filePath: string, out?: string) => {
-  const data = await JSON.parse((await readFile({ filePath })) as string);
+const getCountForIps = async (file: string, out?: string) => {
+  const data = await JSON.parse((await readFile({ file })) as string);
   const ips = reduceFileToIps(data);
   if (out) {
     const orderedData: string = orderAmountOfCalls(ips);
     return writeFile({
-      filePath: out,
+      outputFile: out,
       content: orderedData,
       parser: 'json',
     });
@@ -169,9 +169,9 @@ const getCountForIps = async (filePath: string, out?: string) => {
   }
 };
 
-const getCountForJwt = async (filePath: string, out?: any) => {
+const getCountForJwt = async (file: string, out?: any) => {
   try {
-    const data = await JSON.parse((await readFile({ filePath, parser: 'json' })) as string);
+    const data = await JSON.parse((await readFile({ file, parser: 'json' })) as string);
     const jwts = reduceFileToJWTs(data);
     console.log(jwts);
   } catch (error) {

@@ -1,10 +1,16 @@
 import { doSequencialRequest } from '../../utils/requestSequencially';
 import { exportReport } from '../../utils/io';
 import { readFile } from '../../utils/io';
-import { createLogger, failLogger, succeedLogger, updateLogger } from '../../utils/logging';
+import {
+  failLogger,
+  startLogger,
+  succeedLogger,
+  updateLogger,
+  createLogger,
+} from '../../utils/logging';
 
 interface Props {
-  filePath: string;
+  file: string;
   fileFormat: 'csv' | 'json';
   property: string;
   outputPath: string;
@@ -13,19 +19,19 @@ interface Props {
 }
 
 const validateUsers = async ({
-  filePath,
+  file,
   fileFormat = 'csv',
   property,
   outputPath,
   debugLevel,
   type = 'userId',
 }: Props) => {
-  let loggerInstance: any;
+  let instance: any;
   let _LOGGER_NAME: string = 'SP_1';
 
   try {
     // Errors Stage //
-    if (!filePath) throw new Error('File path must be given');
+    if (!file) throw new Error('File path must be given');
     if (!property) throw new Error('Property in file must be given');
     if (!outputPath) throw new Error('Output path must be given');
 
@@ -40,13 +46,15 @@ const validateUsers = async ({
     const _ERRORS_EXPORT_PATH = `${outputPath}/errors.${fileFormat.toLocaleLowerCase()}`;
 
     // Logging //
-    loggerInstance = createLogger({
+    instance = createLogger();
+    startLogger({
+      instance,
       name: _LOGGER_NAME,
       options: { text: 'Running validateUsers...' },
     });
 
     // Read stage //
-    const data = await readFile({ filePath, parser: fileFormat, loggerInstance });
+    const data = await readFile({ file, parser: fileFormat });
 
     const { logData, errors } = await doSequencialRequest({
       data,
@@ -105,13 +113,13 @@ const validateUsers = async ({
         }
         return transformer;
       },
-      loggerInstance,
+      loggerInstance: instance,
       debug: debugLevel,
     });
 
     // Export Stage
     updateLogger({
-      instance: loggerInstance,
+      instance,
       name: _LOGGER_NAME,
       options: { text: 'Running exportReport...' },
     });
@@ -124,14 +132,14 @@ const validateUsers = async ({
     //   message: 'ERROR while Running Extract CSV Service...',
     // });
     failLogger({
-      instance: loggerInstance,
+      instance,
       name: _LOGGER_NAME,
       options: { text: 'FAILED while trying to run validateUsers...' },
     });
     console.error(error);
   } finally {
     succeedLogger({
-      instance: loggerInstance,
+      instance,
       name: _LOGGER_NAME,
       options: { text: 'logDatafully Ran validateUsers...' },
     });

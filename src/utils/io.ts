@@ -2,30 +2,34 @@ import { Parser } from 'json2csv';
 import fs from 'fs';
 import {
   logError,
-  _createLogger,
+  createLogger,
   startLogger,
   succeedLogger,
   failLogger,
   logDebug,
 } from './logging';
-import { parseCVS, readCSV } from './transformers';
+import { readCsvStream } from './transformers';
 import path from 'path';
 
-interface Props {
-  filePath: string;
+interface readProps {
+  file?: string;
+  parser?: 'json' | 'csv';
+  matchingValue?: string;
+  columns?: string[];
+  debug?: boolean;
+}
+interface writeProps {
+  outputFile?: string;
   content?: any;
   parser?: 'json' | 'csv';
-  identifier?: string;
   columns?: string[];
-  loggerInstance?: any;
   debug?: boolean;
 }
 
-// *
-export const readFile = async ({ filePath, parser = 'csv' }: Props) => {
+export const readFile = async ({ file, parser = 'csv', matchingValue }: readProps) => {
   let data: any;
 
-  const instance = _createLogger();
+  const instance = createLogger();
   startLogger({
     instance,
     name: 'SP_R',
@@ -33,36 +37,43 @@ export const readFile = async ({ filePath, parser = 'csv' }: Props) => {
   });
 
   try {
-    if (parser === 'json') {
-      data = fs.readFileSync(filePath, 'utf-8');
-    } else {
-      data = await readCSV(filePath);
+    switch (parser) {
+      case 'csv':
+        data = await readCsvStream({ file, matchingValue: matchingValue! });
+        return data;
+      case 'json':
+        data = fs.readFileSync(file!, 'utf-8');
+        return data;
     }
-
-    return data;
   } catch (error) {
     failLogger({
       instance,
       name: 'SP_R',
-      options: { text: `FAILED while reading file at ${filePath}` },
+      options: { text: `FAILED while reading file at ${file}` },
     });
+    console.error(error);
   } finally {
     succeedLogger({
       instance,
       name: 'SP_R',
-      options: { text: `Fully processed records from ${filePath}` },
+      options: { text: `Fully processed records from ${file}` },
     });
   }
 };
 
-// *
-export const writeFile = async ({ filePath, content, parser = 'csv', columns, debug }: Props) => {
-  if (!filePath) throw new Error('File Path must be specified');
+export const writeFile = async ({
+  outputFile,
+  content,
+  parser = 'csv',
+  columns,
+  debug,
+}: writeProps) => {
+  if (!outputFile) throw new Error('File Path must be specified');
   if (!content) throw new Error('Content must be provided');
   if (debug) {
     logDebug({
       data: {
-        filePath,
+        outputFile,
         parser,
         content,
         columns,
@@ -73,7 +84,7 @@ export const writeFile = async ({ filePath, content, parser = 'csv', columns, de
 
   let contentParsed: string;
 
-  const instance = _createLogger();
+  const instance = createLogger();
 
   switch (parser) {
     case 'json':
@@ -94,43 +105,27 @@ export const writeFile = async ({ filePath, content, parser = 'csv', columns, de
   }
 
   try {
-    fs.writeFileSync(filePath, contentParsed);
+    fs.writeFileSync(outputFile, contentParsed);
   } catch (error) {
     failLogger({
       instance,
       name: 'writeFile',
-      options: { text: `Failed while creating file at ${path.join(process.env.PWD!, filePath)}` },
+      options: { text: `Failed while creating file at ${path.join(process.env.PWD!, outputFile)}` },
     });
     logError({
-      message: `FAILED while Writing File with file path of ${filePath}`,
+      message: `FAILED while Writing File with file path of ${outputFile}`,
     });
     console.error(error);
   } finally {
     succeedLogger({
       instance,
       name: 'writeFile',
-      options: { text: `created file at ${path.join(process.env.PWD!, filePath)}` },
+      options: { text: `created file at ${path.join(process.env.PWD!, outputFile)}` },
     });
   }
 };
 
-// TODO
-export const readFileStream = async ({
-  filePath,
-  parser = 'csv',
-  identifier = 'user_id',
-}: Props) => {
-  switch (parser) {
-    case 'csv':
-      return parseCVS(filePath, identifier);
-    case 'json':
-      throw new Error('CODE MEEEEEEEEE FUCKR');
-    default:
-      throw new Error('Parser was not provided or it not matched any parser values');
-  }
-};
-
-// TODO
+// TODO remove this
 export const exportReport = async (results, EXPORT_PATH) => {
   console.log(`${EXPORT_PATH} ---> ${results.length}`);
   if (results.length) {

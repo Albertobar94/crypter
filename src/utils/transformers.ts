@@ -1,14 +1,16 @@
-import { logDebug, logInfo } from './logging';
+import { logDebug, logError, logInfo } from './logging';
 import fs from 'fs';
 import csvParser from 'csv-parser';
 
 interface Props {
-  data: any;
-  columns: string;
-  pToExtract: string;
-  pToInsert: string;
-  valueToInsert: string;
+  data?: any;
+  columns?: string;
+  pToExtract?: string;
+  pToInsert?: string;
+  valueToInsert?: string;
   debug?: boolean;
+  file?: string;
+  matchingValue?: string;
 }
 
 // *
@@ -32,71 +34,60 @@ export const normalizeData = ({ columns, arr, matchingValue, debug }) => {
 };
 
 // TODO
-export const parseCVS = (
-  filePath: string,
-  identifier: string,
-): Promise<Record<string, unknown>> => {
-  let result = {};
-  let resultLength = Object.keys(result).length;
+export const readCsvStream = ({
+  file,
+  matchingValue,
+  debug,
+}: Props): Promise<Record<string, unknown>> => {
+  let objResult = {};
+  let arrResult: any[] = [];
+  let objResultLength = Object.keys(objResult).length;
+  let arrResultLength = arrResult.length;
   const stream = fs
-    .createReadStream(filePath)
+    .createReadStream(file!)
     .pipe(csvParser({ mapHeaders: ({ header }) => header.trim() }));
 
   return new Promise((resolve, reject) => {
     stream
       .on('data', chunk => {
-        if (chunk[identifier]) {
-          result[chunk[identifier]] = chunk;
-          // logInfo({
-          //   serviceName: 'parseCVS',
-          //   data: {
-          //     [chunk[identifier]]: chunk,
-          //   },
-          //   message: `Found the identifier in the row... Adding it to the result obj, the length is ${resultLength++}`,
-          // });
+        if (matchingValue && chunk[matchingValue]) {
+          if (debug) {
+            logDebug({
+              data: {
+                [chunk[matchingValue]]: chunk,
+              },
+              message: `Matched value in objResult, the length is: ${objResultLength++}`,
+            });
+          }
+          objResult[chunk[matchingValue]] = chunk;
+        }
+        if (!matchingValue) {
+          if (debug) {
+            logDebug({
+              data: chunk,
+              message: `Matched value in arrResult, the length is: ${arrResultLength++}`,
+            });
+          }
+          arrResult.push(chunk);
         }
       })
       .on('end', () => {
-        // logInfo({
-        //   serviceName: 'parseCVS',
-        //   data: {
-        //     filePath,
-        //     contentLength: Object.keys(result).length,
-        //   },
-        //   message: 'Succesfully Read the file',
-        // });
-
+        if (debug) {
+          logDebug({
+            data: file,
+            message: `Processed the file, the length is: ${arrResultLength++}`,
+          });
+        }
+        // TODO addd spinner
+        const result = Object.keys(objResult).length > 1 ? objResult : arrResult;
         return resolve(result);
       })
       .on('error', error => {
-        // logError({
-        //   serviceName: 'parseCVS',
-        //   error,
-        //   message: 'FAILURE while Reading the File',
-        // });
-        return reject(error);
-      });
-  });
-};
-
-// TODO
-export const readCSV = (filePath: string, loggerInstance?: any) => {
-  let result: any[] = [];
-  // let resultLength = Object.keys(result).length;
-  const stream = fs
-    .createReadStream(filePath)
-    .pipe(csvParser({ mapHeaders: ({ header }) => header.trim() }));
-
-  return new Promise((resolve, reject) => {
-    stream
-      .on('data', chunk => {
-        // resultLength++;
-        result.push(chunk);
-      })
-      .on('end', () => {
-        return resolve(result);
-      })
-      .on('error', error => {
+        // TODO addd spinner
+        logError({
+          message: `FAILED to read file ${file}`,
+        });
+        console.error(error);
         return reject(error);
       });
   });
@@ -106,8 +97,8 @@ export const readCSV = (filePath: string, loggerInstance?: any) => {
 export const extractNestedData = ({ data, pToExtract, columns, debug }: Props) => {
   let result = [];
 
-  const pathToExtractProperty = pToExtract.split('.');
-  const columnsToKeep = columns.split(',');
+  const pathToExtractProperty = pToExtract!.split('.');
+  const columnsToKeep = columns!.split(',');
   try {
     result = data.map(chunk => {
       if (debug) {

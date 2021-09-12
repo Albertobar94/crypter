@@ -1,12 +1,12 @@
 import path from 'path/posix';
 import { normalizeData } from '../../utils/transformers';
-import { readFileStream, writeFile } from '../../utils/io';
+import { readFile, writeFile } from '../../utils/io';
 import {
   logError,
   logInfo,
   logData,
   logDebug,
-  _createLogger,
+  createLogger,
   startLogger,
   failLogger,
   succeedLogger,
@@ -42,7 +42,7 @@ const concatService = async ({
   }
 
   let normalizedData: any[] = [];
-  const instance = _createLogger();
+  const instance = createLogger();
   const fs = files!.split(',');
   const cc = concatColumns!.split(',');
   const outputFile =
@@ -62,10 +62,10 @@ const concatService = async ({
       name: 'concatService',
       options: { text: 'Concatenating files...' },
     });
-    const promises = fs.map(fp => {
-      return readFileStream({
-        filePath: fp,
-        identifier: matchingValue,
+    const promises = fs.map(file => {
+      return readFile({
+        file,
+        matchingValue,
       });
     });
     const [first, second]: any = await Promise.all(promises);
@@ -94,7 +94,7 @@ const concatService = async ({
 
     // Output file Stage //
     await writeFile({
-      filePath: outputFile,
+      outputFile,
       content: normalizedData,
       parser: 'csv',
       columns: cc,

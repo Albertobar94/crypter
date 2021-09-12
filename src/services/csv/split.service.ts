@@ -8,7 +8,7 @@ import {
   logError,
   startLogger,
   succeedLogger,
-  _createLogger,
+  createLogger,
 } from '../../utils/logging';
 
 interface Props {
@@ -30,7 +30,7 @@ export const splitFileService = async ({
   if (!outputDir) throw new Error('Bro, you need to add a output directory');
 
   let CSVResponse: any;
-  const instance = _createLogger();
+  const instance = createLogger();
 
   if (debug) {
     logDebug({

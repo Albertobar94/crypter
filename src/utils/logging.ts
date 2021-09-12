@@ -111,14 +111,7 @@ const pinoDebug = ({ serviceName, error, data, message }: LoggerParams): void =>
   });
 };
 
-const spinnerCreate = ({ name, options }) => {
-  consoleClear(true);
-  const spinner = cliSpinners.dots;
-  const spinnies = new Spinnies({ succeedColor: 'green', spinner });
-  spinnies.add(name, { ...options });
-  return spinnies;
-};
-const _spinnerCreate = () => {
+const spinnerCreate = () => {
   const spinner = cliSpinners.dots;
   const spinnies = new Spinnies({ succeedColor: 'green', spinner });
 
@@ -147,7 +140,6 @@ export {
   pinoError as logError,
   pinoDebug as logDebug,
   spinnerCreate as createLogger,
-  _spinnerCreate as _createLogger,
   spinnerStart as startLogger,
   spinnerUpdate as updateLogger,
   spinnerFail as failLogger,

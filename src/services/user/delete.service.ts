@@ -2,7 +2,7 @@ import inquirer from 'inquirer';
 import { doSequencialRequest } from '../../utils/requestSequencially';
 import { exportReport } from '../../utils/io';
 import { readFile } from '../../utils/io';
-import { failLogger, startLogger, succeedLogger, _createLogger } from '../../utils/logging';
+import { failLogger, startLogger, succeedLogger, createLogger } from '../../utils/logging';
 import { halt } from '../../utils/bootstrap';
 import { getUser as getUserBackup } from './get.service';
 
@@ -40,9 +40,8 @@ const deleteUsers = async ({
     switch (_USER) {
       case undefined:
         const data = await readFile({
-          filePath: file,
+          file,
           parser: fileFormat,
-          loggerInstance: instance,
         });
 
         const { confirm } = await inquirer.prompt({
@@ -53,7 +52,7 @@ const deleteUsers = async ({
         });
         if (!confirm) break;
 
-        instance = _createLogger();
+        instance = createLogger();
         startLogger({
           instance,
           name: 'deleteUsers',
@@ -133,7 +132,7 @@ const deleteUsers = async ({
           });
         }
 
-        instance = _createLogger();
+        instance = createLogger();
         startLogger({
           instance,
           name: 'deleteUsers',

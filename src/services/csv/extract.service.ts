@@ -1,15 +1,12 @@
 import { date } from '../../utils/helpers';
-import { readFile, readFileStream, writeFile } from '../../utils/io';
+import { readFile, writeFile } from '../../utils/io';
 import {
-  createLogger,
   logError,
   failLogger,
-  logInfo,
   succeedLogger,
-  logData,
   updateLogger,
   logDebug,
-  _createLogger,
+  createLogger,
   startLogger,
 } from '../../utils/logging';
 import { extractNestedData } from '../../utils/transformers';
@@ -35,7 +32,7 @@ const flattenService = async ({
   transformer = extractNestedData,
   debug,
 }: Props) => {
-  const instance = _createLogger();
+  const instance = createLogger();
   startLogger({
     instance,
     name: 'flattenService',
@@ -69,7 +66,7 @@ const flattenService = async ({
       options: { text: 'Reading file in flattenService...' },
     });
     // spinnies.update('SP_ES');
-    const data = await readFile({ filePath: file, parser: fileFormat, loggerInstance: instance });
+    const data = await readFile({ file, parser: fileFormat });
 
     // Transform Stage //
     updateLogger({
@@ -80,7 +77,7 @@ const flattenService = async ({
     const content = transformer({ data, flattenPath, columns, debug });
 
     writeFile({
-      filePath: name ? `${outputDir}/${name}.csv` : `${outputDir}/extracted-data-${date()}.csv`,
+      outputFile: name ? `${outputDir}/${name}.csv` : `${outputDir}/extracted-data-${date()}.csv`,
       parser: fileFormat,
       columns: [flattenPath!.split('.')[0], ...columns.split(',')],
       content,

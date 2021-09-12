@@ -1,27 +1,28 @@
 import { doSequencialRequest } from '../../utils/requestSequencially';
 import { exportReport } from '../../utils/io';
 import { readFile } from '../../utils/io';
-import { createLogger, failLogger, succeedLogger, updateLogger } from '../../utils/logging';
+import {
+  failLogger,
+  startLogger,
+  succeedLogger,
+  updateLogger,
+  createLogger,
+} from '../../utils/logging';
 
 interface Props {
-  filePath: string;
+  file: string;
   fileFormat: 'csv' | 'json';
   outputPath: string;
   debugLevel: boolean;
 }
 
-const updateOrder = async ({
-  filePath,
-  fileFormat = 'csv',
-  outputPath,
-  debugLevel: debug,
-}: Props) => {
-  let loggerInstance: any;
+const updateOrder = async ({ file, fileFormat = 'csv', outputPath, debugLevel: debug }: Props) => {
+  let instance: any;
   let _LOGGER_NAME: string = 'OR_1';
 
   try {
     // Errors Stage //
-    if (!filePath) throw new Error('File path must be given');
+    if (!file) throw new Error('File path must be given');
     if (!outputPath) throw new Error('Output path must be given');
 
     // Vars stage //
@@ -32,13 +33,15 @@ const updateOrder = async ({
     const _URL = `${process.env.ORDERS_SERVICE_HOST}/v1/orders/:orderId/associateAccount`;
 
     // Logging //
-    loggerInstance = createLogger({
+    instance = createLogger();
+    startLogger({
+      instance,
       name: _LOGGER_NAME,
       options: { text: 'Running updateOrder...' },
     });
 
     // Read stage //
-    const data = await readFile({ filePath, parser: fileFormat, loggerInstance });
+    const data = await readFile({ file, parser: fileFormat });
 
     const { logData, errors } = await doSequencialRequest({
       data,
@@ -83,13 +86,13 @@ const updateOrder = async ({
 
         return transformer;
       },
-      loggerInstance,
+      loggerInstance: instance,
       debug,
     });
 
     // Export Stage
     updateLogger({
-      instance: loggerInstance,
+      instance,
       name: _LOGGER_NAME,
       options: { text: 'Running exportReport...' },
     });
@@ -97,14 +100,14 @@ const updateOrder = async ({
     await exportReport(errors, _ERRORS_EXPORT_PATH);
   } catch (error) {
     failLogger({
-      instance: loggerInstance,
+      instance,
       name: _LOGGER_NAME,
       options: { text: 'FAILED while trying to run updateOrder...' },
     });
     console.error(error);
   } finally {
     succeedLogger({
-      instance: loggerInstance,
+      instance,
       name: _LOGGER_NAME,
       options: { text: 'logDatafully Ran updateOrder...' },
     });

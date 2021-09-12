@@ -1,6 +1,6 @@
 import figlet from 'figlet';
 import consoleClear from 'console-clear';
-import { startLogger, succeedLogger, _createLogger } from './logging';
+import { startLogger, succeedLogger, createLogger } from './logging';
 
 const generateAsciiArt = async () => {
   return new Promise((resolve, reject) => {
@@ -25,7 +25,7 @@ export const halt = async (ms: number) => {
 
 export const bootstrap = async () => {
   consoleClear(true);
-  const instance = _createLogger();
+  const instance = createLogger();
   console.log(await generateAsciiArt());
   startLogger({ instance, name: 'Bootstrap', options: { text: 'Starting command...' } });
   await halt(1500);

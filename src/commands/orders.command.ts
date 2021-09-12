@@ -39,7 +39,7 @@ const updateOrderId = new Command()
     switch (action) {
       default:
         return updateOrder({
-          filePath: file,
+          file,
           fileFormat,
           outputPath: outputDir,
           debugLevel: debug,

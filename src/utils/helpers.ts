@@ -1,9 +1,5 @@
-import csvParser from 'csv-parser';
-import fs from 'fs';
-import { Parser } from 'json2csv';
-import { logDebug, logError, logInfo } from './logging';
+import { logInfo } from './logging';
 
-// *
 export const date = () => {
   const year = new Date().getFullYear();
   const month = new Date().getMonth();
@@ -11,12 +7,10 @@ export const date = () => {
   return `${day}-${month}-${year}`;
 };
 
-// *
 export const parseTuple = (arr: string[]): string => {
   return `${arr}`;
 };
 
-// ?
 export const updateURL = ({ value, baseUrl, request }) => {
   const _BASE_URL = baseUrl;
   const _REQUEST = request;
