@@ -15,9 +15,9 @@ import {
 import { extractNestedData } from '../../utils/transformers';
 
 interface Props {
-  filePath?: string;
+  file?: string;
   columns: string;
-  pToExtract?: string;
+  flattenPath?: string;
   outputDir: string;
   fileFormat?: 'CSV' | 'JSON';
   name?: string;
@@ -25,10 +25,10 @@ interface Props {
   debug?: boolean;
 }
 
-const extractService = async ({
-  filePath,
+const flattenService = async ({
+  file,
   columns,
-  pToExtract,
+  flattenPath,
   outputDir,
   fileFormat,
   name,
@@ -38,17 +38,17 @@ const extractService = async ({
   const instance = _createLogger();
   startLogger({
     instance,
-    name: 'extractService',
-    options: { text: 'Running extractService...' },
+    name: 'flattenService',
+    options: { text: 'Running flattenService...' },
   });
 
   if (debug) {
     logDebug({
       message: 'Debugging...',
       data: {
-        filePath,
+        file,
         columns,
-        pToExtract,
+        flattenPath,
         outputDir,
         fileFormat,
         name,
@@ -57,39 +57,39 @@ const extractService = async ({
   }
 
   try {
-    if (!filePath) throw new Error('File must be specified');
+    if (!file) throw new Error('File must be specified');
     if (!columns) throw new Error('Columns must be specified');
-    if (!pToExtract) throw new Error('pToExtract must be specified');
+    if (!flattenPath) throw new Error('flattenPath must be specified');
     if (!outputDir) throw new Error('outputDir must be specified');
 
     // Read Stage //
     updateLogger({
-      name: 'extractService',
+      name: 'flattenService',
       instance: instance,
-      options: { text: 'Reading file in extractService...' },
+      options: { text: 'Reading file in flattenService...' },
     });
     // spinnies.update('SP_ES');
-    const data = await readFile({ filePath, parser: fileFormat, loggerInstance: instance });
+    const data = await readFile({ filePath: file, parser: fileFormat, loggerInstance: instance });
 
     // Transform Stage //
     updateLogger({
-      name: 'extractService',
+      name: 'flattenService',
       instance: instance,
-      options: { text: 'Processing data from file in extractService...' },
+      options: { text: 'Processing data from file in flattenService...' },
     });
-    const content = transformer({ data, pToExtract, columns, debug });
+    const content = transformer({ data, flattenPath, columns, debug });
 
     writeFile({
       filePath: name ? `${outputDir}/${name}.csv` : `${outputDir}/extracted-data-${date()}.csv`,
       parser: fileFormat,
-      columns: [pToExtract!.split('.')[0], ...columns.split(',')],
+      columns: [flattenPath!.split('.')[0], ...columns.split(',')],
       content,
     });
   } catch (error) {
     failLogger({
-      name: 'extractService',
+      name: 'flattenService',
       instance: instance,
-      options: { text: 'FAILED to execute extractService...' },
+      options: { text: 'FAILED to execute flattenService...' },
     });
     logError({
       message: 'ERROR while Running Extract CSV Service',
@@ -97,11 +97,11 @@ const extractService = async ({
     console.error(error);
   } finally {
     succeedLogger({
-      name: 'extractService',
+      name: 'flattenService',
       instance: instance,
       options: { text: 'Success...' },
     });
   }
 };
 
-export { extractService };
+export { flattenService };

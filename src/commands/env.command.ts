@@ -15,10 +15,6 @@ const showAllEnvVars = () => {
   console.log(allEnvVars);
 };
 
-// const showEnv = (envId: string) => {
-//   console.log(process.env[envId]);
-// };
-
 type action = 'get';
 
 const getEnv = new Command()

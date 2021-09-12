@@ -1,13 +1,7 @@
 import { doSequencialRequest } from '../../utils/requestSequencially';
 import { exportReport } from '../../utils/io';
 import { readFile } from '../../utils/io';
-import {
-  createLogger,
-  failLogger,
-  logInfo,
-  succeedLogger,
-  updateLogger,
-} from '../../utils/logging';
+import { createLogger, failLogger, succeedLogger, updateLogger } from '../../utils/logging';
 
 interface Props {
   filePath: string;

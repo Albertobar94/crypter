@@ -1,11 +1,27 @@
 import { Command } from 'commander';
 import { parseTuple } from '../utils/helpers';
 import { concatService } from '../services/csv/concat.service';
-import { extractService } from '../services/csv/extract.service';
+import { flattenService } from '../services/csv/extract.service';
 import { splitFileService } from '../services/csv/split.service';
 import { bootstrap } from '../utils/bootstrap';
 
 type action = 'concat' | 'flatten' | 'split';
+type CONFIG = {
+  command: string;
+  description: string;
+  options: {
+    columns: string;
+    debug: boolean;
+    file: string;
+    files: string;
+    fileFormat: 'CSV' | 'JSON';
+    flattenPath: string;
+    lines: number;
+    matchingValue: string;
+    name: string;
+    outputDir: string;
+  };
+};
 
 const CONFIG = {
   command: 'csv <action>',
@@ -68,7 +84,7 @@ const csv = new Command()
   .option(parseTuple(outputDir))
   .option(parseTuple(debug))
 
-  .action(async (action: action, options) => {
+  .action(async (action: action, options: CONFIG['options']) => {
     const {
       columns,
       debug,
@@ -95,10 +111,10 @@ const csv = new Command()
           debug,
         });
       case 'flatten':
-        return extractService({
-          filePath: file,
+        return flattenService({
+          file,
           columns,
-          pToExtract: flattenPath,
+          flattenPath,
           outputDir,
           name,
           fileFormat,
@@ -107,7 +123,7 @@ const csv = new Command()
       case 'split':
         return splitFileService({ file, lines, name, outputDir, debug });
       default:
-        throw new Error();
+        throw new Error('Action must be either: split | concat | flatten');
     }
   });
 

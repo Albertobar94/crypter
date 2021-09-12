@@ -2,7 +2,13 @@ import { Command } from 'commander';
 import { updateOrder } from '../services/orders/update.service';
 import { parseTuple } from '../utils/helpers';
 
-const METADATA = {
+type CONFIG = {
+  command: string;
+  description: string;
+  options: { file: string; fileFormat: 'CSV' | 'JSON'; outputDir: string; debug: boolean };
+};
+
+const CONFIG = {
   command: 'orders <action>',
   description: 'update, information for a user order',
   options: {
@@ -17,7 +23,7 @@ const {
   command,
   description,
   options: { file, fileFormat, outputDir, debug },
-} = METADATA;
+} = CONFIG;
 
 type action = 'update';
 
@@ -28,7 +34,7 @@ const updateOrderId = new Command()
   .option(parseTuple(fileFormat))
   .option(parseTuple(outputDir))
   .option(parseTuple(debug))
-  .action((action: action, options) => {
+  .action((action: action, options: CONFIG['options']) => {
     const { file, fileFormat, outputDir, debug } = options;
     switch (action) {
       default:

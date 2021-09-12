@@ -6,12 +6,33 @@ import { validateUsers as validateUsersService } from '../services/user/validate
 import { parseTuple } from '../utils/helpers';
 import { bootstrap } from '../utils/bootstrap';
 
-const METADATA = {
+type action = 'get' | 'update' | 'delete' | 'validate' | 'import';
+type CONFIG = {
+  command: string;
+  description: string;
+  options: {
+    userId: string;
+    userEmail: string;
+    includes: 'all' | 'none';
+    debug: boolean;
+    file: string;
+    fileFormat: 'CSV' | 'JSON';
+    outputFile: string;
+    outputDir: string;
+    validateBy: 'userId' | 'emailId';
+  };
+};
+
+const CONFIG = {
   command: 'user <action>',
   description: 'Get | Update | Delete | validate, users',
   options: {
     userId: ['-id, --userId <id>', 'get user details by userId'],
     userEmail: ['-e, --userEmail <email>', 'get user details by emailId'],
+    includes: [
+      '-in, --includes <values>',
+      'Includes information from the user separated by ",". Type: String',
+    ],
 
     file: ['-f, --file <path> ', ' STRING: file name path'],
     fileFormat: ['-ff, --fileFormat <format> ', ' STRING: file format to read'],
@@ -27,13 +48,21 @@ const METADATA = {
   },
 };
 
-type action = 'get' | 'update' | 'delete' | 'validate' | 'import';
-
 const {
   command,
   description,
-  options: { userId, userEmail, debug, file, fileFormat, outputFile, outputDir, validateBy },
-} = METADATA;
+  options: {
+    userId,
+    userEmail,
+    includes,
+    debug,
+    file,
+    fileFormat,
+    outputFile,
+    outputDir,
+    validateBy,
+  },
+} = CONFIG;
 
 const user = new Command()
   .command(command)
@@ -49,20 +78,37 @@ const user = new Command()
   .option(parseTuple(outputDir))
 
   .option(parseTuple(validateBy))
-
+  .option(parseTuple(includes))
   .option(parseTuple(debug))
-  .action(async (action: action, options) => {
+
+  .action(async (action: action, options: CONFIG['options']) => {
     await bootstrap();
-    const { userId, userEmail, debug, file, fileFormat, outputFile, outputDir, validateBy } =
-      options;
+    const {
+      userId,
+      userEmail,
+      includes,
+      debug,
+      file,
+      fileFormat,
+      outputFile,
+      outputDir,
+      validateBy,
+    } = options;
 
     switch (action) {
       case 'get':
-        return getUserService({ userId, userEmail, outputDir, fileFormat, debug });
+        return getUserService({
+          userId,
+          userEmail,
+          includes,
+          outputDir,
+          fileFormat,
+          debug,
+        });
       case 'import':
         return importUserService({ filePath: file, outputDir });
       case 'delete':
-        return deleteUsersService({ filePath: file, fileFormat, outputPath: outputDir, debug });
+        return deleteUsersService({ userId, userEmail, file, fileFormat, outputDir, debug });
       case 'validate':
         return validateUsersService({
           filePath: file,
@@ -76,7 +122,7 @@ const user = new Command()
       case 'update':
         break;
       default:
-        break;
+        throw new Error('Action must be get | update | delete | validate | import');
     }
   });
 

@@ -2,7 +2,7 @@ import got from 'got/dist/source';
 import cliProgress from 'cli-progress';
 
 import { updateURL } from './helpers';
-import { logError, logInfo, logData } from './logging';
+import { logError, logInfo, logData, logDebug } from './logging';
 import { halt } from './bootstrap';
 
 interface Props {
@@ -68,13 +68,15 @@ const doSequencialRequest = async ({
   for await (let _REQUEST of _DATA) {
     // Reset //
     if (_COUNTER === _CONCURRENCY) {
-      logInfo({
+      logDebug({
         serviceName: 'doSequencialRequest',
         message: `${_TOTAL_COUNT} requests so far, finished batch size of ${_COUNTER} going to hault...`,
       });
 
       _COUNTER = 0;
-      loggerInstance.update('SP_SR', { text: `${_TOTAL_COUNT} Requests so far... Pausing for ${_PAUSE_TIME}ms...` });
+      loggerInstance.update('SP_SR', {
+        text: `${_TOTAL_COUNT} Requests so far... Pausing for ${_PAUSE_TIME}ms...`,
+      });
       await _halt(_PAUSE_TIME);
       loggerInstance.update('SP_SR', { text: `Running Sequential Requests...` });
     }
@@ -112,7 +114,7 @@ const doSequencialRequest = async ({
           };
 
     if (debug) {
-      logInfo({
+      logDebug({
         serviceName: 'doSequencialRequest',
         message: `REQUEST -> Url ${_REQUEST_URL}, Method ${_METHOD}, request ${_COUNTER} of batch and ${_TOTAL_COUNT} of total`,
         data: _REQUEST,
@@ -121,7 +123,7 @@ const doSequencialRequest = async ({
     got(_GOT_REQUEST)
       .then(async result => {
         if (debug) {
-          logData({
+          logDebug({
             serviceName: 'doSequencialRequest',
             message: 'Received logDataful Response',
             data: result?.body as any,
@@ -136,7 +138,9 @@ const doSequencialRequest = async ({
         if (debug) {
           logError({
             serviceName: 'doSequencialRequest',
-            message: `ERROR ${error?.response?.statusCode || error?.code} Response from ${_REQUEST[injectValue]}`,
+            message: `ERROR ${error?.response?.statusCode || error?.code} Response from ${
+              _REQUEST[injectValue]
+            }`,
             error: error?.response?.body === '' ? null : error?.response?.body,
           });
         }
