@@ -14,7 +14,7 @@ import path from 'path';
 interface Props {
   filePath: string;
   content?: any;
-  parser?: 'JSON' | 'CSV';
+  parser?: 'json' | 'csv';
   identifier?: string;
   columns?: string[];
   loggerInstance?: any;
@@ -22,7 +22,7 @@ interface Props {
 }
 
 // *
-export const readFile = async ({ filePath, parser = 'CSV' }: Props) => {
+export const readFile = async ({ filePath, parser = 'csv' }: Props) => {
   let data: any;
 
   const instance = _createLogger();
@@ -33,7 +33,7 @@ export const readFile = async ({ filePath, parser = 'CSV' }: Props) => {
   });
 
   try {
-    if (parser === 'JSON') {
+    if (parser === 'json') {
       data = fs.readFileSync(filePath, 'utf-8');
     } else {
       data = await readCSV(filePath);
@@ -56,7 +56,7 @@ export const readFile = async ({ filePath, parser = 'CSV' }: Props) => {
 };
 
 // *
-export const writeFile = async ({ filePath, content, parser = 'CSV', columns, debug }: Props) => {
+export const writeFile = async ({ filePath, content, parser = 'csv', columns, debug }: Props) => {
   if (!filePath) throw new Error('File Path must be specified');
   if (!content) throw new Error('Content must be provided');
   if (debug) {
@@ -76,7 +76,7 @@ export const writeFile = async ({ filePath, content, parser = 'CSV', columns, de
   const instance = _createLogger();
 
   switch (parser) {
-    case 'JSON':
+    case 'json':
       startLogger({
         instance,
         name: 'writeFile',
@@ -84,7 +84,7 @@ export const writeFile = async ({ filePath, content, parser = 'CSV', columns, de
       });
       contentParsed = JSON.stringify(content, null, 2);
       break;
-    case 'CSV':
+    case 'csv':
       startLogger({ instance, name: 'writeFile', options: { text: 'Writing file in Csv format' } });
       // @ts-expect-error
       const parser = new Parser({ columns });
@@ -117,13 +117,13 @@ export const writeFile = async ({ filePath, content, parser = 'CSV', columns, de
 // TODO
 export const readFileStream = async ({
   filePath,
-  parser = 'CSV',
+  parser = 'csv',
   identifier = 'user_id',
 }: Props) => {
   switch (parser) {
-    case 'CSV':
+    case 'csv':
       return parseCVS(filePath, identifier);
-    case 'JSON':
+    case 'json':
       throw new Error('CODE MEEEEEEEEE FUCKR');
     default:
       throw new Error('Parser was not provided or it not matched any parser values');

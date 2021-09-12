@@ -19,7 +19,7 @@ interface Props {
   columns: string;
   flattenPath?: string;
   outputDir: string;
-  fileFormat?: 'CSV' | 'JSON';
+  fileFormat?: 'csv' | 'json';
   name?: string;
   transformer?: (data: any) => void;
   debug?: boolean;

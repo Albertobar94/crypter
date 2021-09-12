@@ -3,7 +3,9 @@ import { readFile, writeFile } from '../../utils/io';
 
 const reduceFileToIps = (data: any) => {
   return data.reduce((accum: any, log: any) => {
-    const ip = log.jsonPayload.httpHeaders ? log.jsonPayload.httpHeaders['x-forwarded-for'].split(',')[0] : null;
+    const ip = log.jsonPayload.httpHeaders
+      ? log.jsonPayload.httpHeaders['x-forwarded-for'].split(',')[0]
+      : null;
     if (!ip) {
       const traceId = log.jsonPayload.traceHeaders['x-b3-traceid'];
       return {
@@ -160,7 +162,7 @@ const getCountForIps = async (filePath: string, out?: string) => {
     return writeFile({
       filePath: out,
       content: orderedData,
-      parser: 'JSON',
+      parser: 'json',
     });
   } else {
     return console.log('NOT OUT', ips);
@@ -169,7 +171,7 @@ const getCountForIps = async (filePath: string, out?: string) => {
 
 const getCountForJwt = async (filePath: string, out?: any) => {
   try {
-    const data = await JSON.parse((await readFile({ filePath, parser: 'JSON' })) as string);
+    const data = await JSON.parse((await readFile({ filePath, parser: 'json' })) as string);
     const jwts = reduceFileToJWTs(data);
     console.log(jwts);
   } catch (error) {

@@ -27,7 +27,7 @@ const importUser = async ({ filePath, outputDir }: Props) => {
   try {
     if (!filePath) throw new Error();
 
-    const data = await readFile({ filePath, parser: 'CSV' });
+    const data = await readFile({ filePath, parser: 'csv' });
 
     const requestBodys = data.map(record => {
       return transformRecordForUserImport(record);

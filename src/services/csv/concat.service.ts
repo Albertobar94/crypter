@@ -96,7 +96,7 @@ const concatService = async ({
     await writeFile({
       filePath: outputFile,
       content: normalizedData,
-      parser: 'CSV',
+      parser: 'csv',
       columns: cc,
     });
   } catch (error) {

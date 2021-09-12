@@ -5,7 +5,7 @@ import { parseTuple } from '../utils/helpers';
 type CONFIG = {
   command: string;
   description: string;
-  options: { file: string; fileFormat: 'CSV' | 'JSON'; outputDir: string; debug: boolean };
+  options: { file: string; fileFormat: 'csv' | 'json'; outputDir: string; debug: boolean };
 };
 
 const CONFIG = {

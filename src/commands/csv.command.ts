@@ -14,7 +14,7 @@ type CONFIG = {
     debug: boolean;
     file: string;
     files: string;
-    fileFormat: 'CSV' | 'JSON';
+    fileFormat: 'csv' | 'json';
     flattenPath: string;
     lines: number;
     matchingValue: string;

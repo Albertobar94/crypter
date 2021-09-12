@@ -5,14 +5,14 @@ import { createLogger, failLogger, succeedLogger, updateLogger } from '../../uti
 
 interface Props {
   filePath: string;
-  fileFormat: 'CSV' | 'JSON';
+  fileFormat: 'csv' | 'json';
   outputPath: string;
   debugLevel: boolean;
 }
 
 const updateOrder = async ({
   filePath,
-  fileFormat = 'CSV',
+  fileFormat = 'csv',
   outputPath,
   debugLevel: debug,
 }: Props) => {

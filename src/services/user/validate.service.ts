@@ -5,7 +5,7 @@ import { createLogger, failLogger, succeedLogger, updateLogger } from '../../uti
 
 interface Props {
   filePath: string;
-  fileFormat: 'CSV' | 'JSON';
+  fileFormat: 'csv' | 'json';
   property: string;
   outputPath: string;
   debugLevel: boolean;
@@ -14,7 +14,7 @@ interface Props {
 
 const validateUsers = async ({
   filePath,
-  fileFormat = 'CSV',
+  fileFormat = 'csv',
   property,
   outputPath,
   debugLevel,

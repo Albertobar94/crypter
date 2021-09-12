@@ -6,7 +6,7 @@ interface getUserProps {
   userId?: string;
   userEmail?: string;
   outputDir?: string;
-  fileFormat?: 'CSV' | 'JSON';
+  fileFormat?: 'csv' | 'json';
   debug?: boolean;
   includes: 'all' | 'none';
   _hideLogs?: boolean;
@@ -38,7 +38,7 @@ const getUser = async ({
   userEmail,
   includes = 'none',
   outputDir,
-  fileFormat = 'JSON',
+  fileFormat = 'json',
   debug = false,
   _hideLogs = false,
 }: getUserProps) => {

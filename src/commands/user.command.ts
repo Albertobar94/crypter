@@ -17,7 +17,7 @@ type CONFIG = {
     debug: boolean;
     dryRun: boolean;
     file: string;
-    fileFormat: 'CSV' | 'JSON';
+    fileFormat: 'csv' | 'json';
     outputFile: string;
     outputDir: string;
     validateBy: 'userId' | 'emailId';

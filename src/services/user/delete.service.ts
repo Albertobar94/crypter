@@ -10,7 +10,7 @@ interface Props {
   userId: string;
   userEmail: string;
   file: string;
-  fileFormat: 'CSV' | 'JSON';
+  fileFormat: 'csv' | 'json';
   outputDir: string;
   debug: boolean;
   dryRun: boolean;
@@ -20,7 +20,7 @@ const deleteUsers = async ({
   userId,
   userEmail,
   file,
-  fileFormat = 'CSV',
+  fileFormat = 'csv',
   outputDir,
   debug,
   dryRun,
@@ -145,7 +145,7 @@ const deleteUsers = async ({
           userId,
           userEmail,
           outputDir,
-          fileFormat: 'JSON',
+          fileFormat: 'json',
           debug,
           includes: 'all',
         });
