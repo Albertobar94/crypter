@@ -15,6 +15,7 @@ type CONFIG = {
     userEmail: string;
     includes: 'all' | 'none';
     debug: boolean;
+    dryRun: boolean;
     file: string;
     fileFormat: 'CSV' | 'JSON';
     outputFile: string;
@@ -45,6 +46,7 @@ const CONFIG = {
     validateBy: ['-by, --validateBy', ' STRING:'],
 
     debug: ['-d, --debug', 'output extra debugging'],
+    dryRun: ['-dry, --dryRun', 'Perform a dry run'],
   },
 };
 
@@ -56,6 +58,7 @@ const {
     userEmail,
     includes,
     debug,
+    dryRun,
     file,
     fileFormat,
     outputFile,
@@ -80,6 +83,7 @@ const user = new Command()
   .option(parseTuple(validateBy))
   .option(parseTuple(includes))
   .option(parseTuple(debug))
+  .option(parseTuple(dryRun))
 
   .action(async (action: action, options: CONFIG['options']) => {
     await bootstrap();
@@ -88,6 +92,7 @@ const user = new Command()
       userEmail,
       includes,
       debug,
+      dryRun,
       file,
       fileFormat,
       outputFile,
@@ -108,7 +113,15 @@ const user = new Command()
       case 'import':
         return importUserService({ filePath: file, outputDir });
       case 'delete':
-        return deleteUsersService({ userId, userEmail, file, fileFormat, outputDir, debug });
+        return deleteUsersService({
+          userId,
+          userEmail,
+          file,
+          fileFormat,
+          outputDir,
+          debug,
+          dryRun,
+        });
       case 'validate':
         return validateUsersService({
           filePath: file,

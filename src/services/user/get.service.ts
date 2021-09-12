@@ -69,7 +69,7 @@ const getUser = async ({
       if (!_hideLogs) {
         logData({
           data: userId ? response.data.data.user : response.data.data,
-          message: `Successful Response`,
+          message: `User Information`,
         });
       }
       return response;

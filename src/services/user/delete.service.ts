@@ -13,6 +13,7 @@ interface Props {
   fileFormat: 'CSV' | 'JSON';
   outputDir: string;
   debug: boolean;
+  dryRun: boolean;
 }
 
 const deleteUsers = async ({
@@ -22,11 +23,11 @@ const deleteUsers = async ({
   fileFormat = 'CSV',
   outputDir,
   debug,
+  dryRun,
 }: Props) => {
   if (!userId && !file && !userEmail) throw new Error('File, userId or emailId must be specified');
   if (!outputDir) throw new Error('Output path must be given');
 
-  let _LOGGER_NAME: string = 'DU_1';
   const _URL = userId
     ? `${process.env.USER_SERVICE_HOST}/v1/users/${userId}`
     : `${process.env.USER_SERVICE_HOST}/v1/users/:userId`;
@@ -44,7 +45,6 @@ const deleteUsers = async ({
           loggerInstance: instance,
         });
 
-        // TODO ask inquirer
         const { confirm } = await inquirer.prompt({
           type: 'confirm',
           name: 'confirm',
@@ -56,43 +56,45 @@ const deleteUsers = async ({
         instance = _createLogger();
         startLogger({
           instance,
-          name: _LOGGER_NAME,
+          name: 'deleteUsers',
           options: { text: 'Proceeding to delete users...' },
         });
 
-        // const { logData, errors } = await doSequencialRequest({
-        //   data,
-        //   intervalTime: 3,
-        //   concurrency: 2500,
-        //   pauseTime: 2500,
-        //   url: _URL,
-        //   injectValue: 'userId',
-        //   method: 'DELETE',
-        //   headers: {
-        //     Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
-        //     'x-tenant-id': process.env.FACL_TENANT_ID,
-        //   },
-        //   logDataCallback: async (res, req) => {
-        //     const { data, body } = res;
-        //     const transformer = {
-        //       id: req.userId,
-        //       statusCode: res?.statusCode || res?.code,
-        //     };
-        //     return transformer;
-        //   },
-        //   errorsCallback: async error => {
-        //     const transformer = {
-        //       statusCode: error?.response?.statusCode || error?.code,
-        //     };
+        if (dryRun) return;
 
-        //     return transformer;
-        //   },
-        //   loggerInstance: instance,
-        //   debug,
-        // });
+        const { logData, errors } = await doSequencialRequest({
+          data,
+          intervalTime: 3,
+          concurrency: 2500,
+          pauseTime: 2500,
+          url: _URL,
+          injectValue: 'userId',
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
+            'x-tenant-id': process.env.FACL_TENANT_ID,
+          },
+          logDataCallback: async (res, req) => {
+            const { data, body } = res;
+            const transformer = {
+              id: req.userId,
+              statusCode: res?.statusCode || res?.code,
+            };
+            return transformer;
+          },
+          errorsCallback: async error => {
+            const transformer = {
+              statusCode: error?.response?.statusCode || error?.code,
+            };
 
-        // await exportReport(logData, _logData_EXPORT_PATH);
-        // await exportReport(errors, _ERRORS_EXPORT_PATH);
+            return transformer;
+          },
+          loggerInstance: instance,
+          debug,
+        });
+
+        await exportReport(logData, _logData_EXPORT_PATH);
+        await exportReport(errors, _ERRORS_EXPORT_PATH);
         break;
       default:
         const { first } = await inquirer.prompt({
@@ -120,6 +122,16 @@ const deleteUsers = async ({
           default: false,
         });
         if (!second) break;
+
+        if (dryRun) {
+          return await getUserBackup({
+            userId,
+            userEmail,
+            debug,
+            includes: 'none',
+            _hideLogs: false,
+          });
+        }
 
         instance = _createLogger();
         startLogger({
@@ -154,7 +166,7 @@ const deleteUsers = async ({
     succeedLogger({
       instance,
       name: 'deleteUsers',
-      options: { text: 'Success...' },
+      options: { text: `${dryRun ? 'done...' : 'Success...'}` },
     });
   }
 };
