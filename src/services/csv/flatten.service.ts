@@ -14,7 +14,7 @@ import { extractNestedData } from '../../utils/transformers';
 interface Props {
   file?: string;
   columns: string;
-  flattenPath?: string;
+  flattenPathToValue?: string;
   outputDir: string;
   fileFormat?: 'csv' | 'json';
   name?: string;
@@ -25,7 +25,7 @@ interface Props {
 const flattenService = async ({
   file,
   columns,
-  flattenPath,
+  flattenPathToValue,
   outputDir,
   fileFormat,
   name,
@@ -45,7 +45,7 @@ const flattenService = async ({
       data: {
         file,
         columns,
-        flattenPath,
+        flattenPathToValue,
         outputDir,
         fileFormat,
         name,
@@ -56,7 +56,7 @@ const flattenService = async ({
   try {
     if (!file) throw new Error('File must be specified');
     if (!columns) throw new Error('Columns must be specified');
-    if (!flattenPath) throw new Error('flattenPath must be specified');
+    if (!flattenPathToValue) throw new Error('flattenPath must be specified');
     if (!outputDir) throw new Error('outputDir must be specified');
 
     updateLogger({
@@ -72,12 +72,12 @@ const flattenService = async ({
       instance: instance,
       options: { text: 'Processing data from file in flattenService...' },
     });
-    const content = transformer({ data, flattenPath, columns, debug });
+    const content = transformer({ data, flattenPathToValue, columns, debug });
 
     writeFile({
       outputFile: name ? `${outputDir}/${name}.csv` : `${outputDir}/extracted-data-${date()}.csv`,
       parser: fileFormat,
-      columns: [flattenPath!.split('.')[0], ...columns.split(',')],
+      columns: [flattenPathToValue!.split('.')[0], ...columns.split(',')],
       content,
     });
   } catch (error) {

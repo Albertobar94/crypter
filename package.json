@@ -1,6 +1,6 @@
 {
   "name": "catalyst-user-script",
-  "version": "0.8.1",
+  "version": "0.10.1",
   "main": "index.ts",
   "bin": {
     "crypter": "lib/index.js"

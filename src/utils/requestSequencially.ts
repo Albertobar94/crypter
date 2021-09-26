@@ -63,8 +63,6 @@ const doSequencialRequest = async ({
   });
   b1.start(_DATA.length, _TOTAL_COUNT);
 
-  // ADGDAG //
-
   for await (let _REQUEST of _DATA) {
     // Reset //
     if (_COUNTER === _CONCURRENCY) {
@@ -82,7 +80,7 @@ const doSequencialRequest = async ({
     }
 
     // Request //
-    _REQUEST_URL = updateURL({ value: injectValue, request: _REQUEST, baseUrl: _BASE_URL });
+    _REQUEST_URL = updateURL({ value: injectValue, request: _REQUEST, baseUrl: _BASE_URL, debug });
 
     _COUNTER++;
     _TOTAL_COUNT++;
@@ -153,7 +151,7 @@ const doSequencialRequest = async ({
 
   while (_REQ_PROCESSED < _DATA_LENGTH) {
     if (_TOTAL_COUNT === _DATA_LENGTH) {
-      await _halt(20000);
+      await _halt(10000);
       break;
     }
     await _halt(_HALT_TIME);

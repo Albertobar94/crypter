@@ -11,7 +11,7 @@ import {
 } from '../../utils/logging';
 
 interface Props {
-  files?: string;
+  file?: string;
   concatColumns?: string;
   matchingValue?: string;
   outputDir: string;
@@ -20,7 +20,7 @@ interface Props {
 }
 
 const concatService = async ({
-  files,
+  file,
   concatColumns,
   matchingValue,
   outputDir,
@@ -30,7 +30,7 @@ const concatService = async ({
   if (debug) {
     logDebug({
       data: {
-        files,
+        file,
         concatColumns,
         matchingValue,
         outputDir,
@@ -41,12 +41,12 @@ const concatService = async ({
 
   let normalizedData: any[] = [];
   const instance = createLogger();
-  const fs = files!.split(',');
+  const fs = file!.split(',');
   const cc = concatColumns!.split(',');
   const outputFile =
     name && name !== '' ? `${outputDir}/${name}.csv` : `${outputDir}/concatenated-file.csv`;
 
-  if (!files) throw new Error('File Paths must be specified');
+  if (!file) throw new Error('File Paths must be specified');
   if (!concatColumns) throw new Error('concatColumns must be specified');
   if (!matchingValue) throw new Error('Matching value must be specified');
   if (!outputDir) throw new Error('outputDir must be specified');

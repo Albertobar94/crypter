@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import { updateOrder } from '../services/orders/update.service';
 import { bootstrap } from '../utils/bootstrap';
-import { parseTuple } from '../utils/helpers';
+import { parseDescription, parseFlags } from '../utils/helpers';
 
 type CONFIG = {
   command: string;
@@ -31,10 +31,10 @@ type action = 'update';
 const updateOrderId = new Command()
   .command(command)
   .description(description)
-  .option(parseTuple(file))
-  .option(parseTuple(fileFormat))
-  .option(parseTuple(outputDir))
-  .option(parseTuple(debug))
+  .option(parseFlags(file), parseDescription(file))
+  .option(parseFlags(fileFormat), parseDescription(fileFormat))
+  .option(parseFlags(outputDir), parseDescription(outputDir))
+  .option(parseFlags(debug), parseDescription(debug))
   .action(async (action: action, options: CONFIG['options']) => {
     await bootstrap();
 

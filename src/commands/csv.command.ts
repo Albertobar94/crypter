@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { parseTuple } from '../utils/helpers';
+import { parseDescription, parseFlags } from '../utils/helpers';
 import { concatService, flattenService, splitFileService } from '../services/csv';
 import { bootstrap } from '../utils/bootstrap';
 
@@ -13,7 +13,7 @@ type CONFIG = {
     file: string;
     files: string;
     fileFormat: 'csv' | 'json';
-    flattenPath: string;
+    flattenPathToValue: string;
     lines: number;
     matchingValue: string;
     name: string;
@@ -25,25 +25,24 @@ const CONFIG = {
   command: 'csv <action>',
   description: 'concat | flatten | split, Csv files...',
   options: {
-    files: ['-fs, --files <paths>', 'File names paths separated by ",". Type: String'],
-    file: ['-f, --file <path> ', 'File name. Type: String'],
-    fileFormat: ['-ff, --fileFormat <format> ', 'File format to Read and Parse file. Type: String'],
+    file: ['-f, --file <path> ', 'File name.'],
+    fileFormat: ['-F, --fileFormat <format> ', 'File format to Read and Parse file.'],
     columns: [
       '-c, --columns <columns>',
-      'Names of columns to be in the new file, separated by ",". Type: String',
+      'Names of columns to be in the new file, separated by ",".',
     ],
     matchingValue: [
-      '-mv, --matchingValue <value>',
-      'Value to be present in both rows for concatenation. Type: String',
+      '-M, --matchingValue <value>',
+      'Value to be present in both rows for concatenation.',
     ],
-    flattenPath: [
-      '-fp, --flattenPath <path>',
-      '<Key>.<Key>.<key>...<Value>. Type: String, Object like access path to value',
+    flattenPathToValue: [
+      '-V, --flattenPathToValue <path>',
+      '<Key>.<Key>.<key>...<Value>., Object like access path to value',
     ],
-    lines: ['-l, --lines <number>', 'Number of lines to split. Type: Number'],
-    name: ['-n, --name <newName>', 'Name for output file. Type: String'],
-    outputDir: ['-o, --outputDir <path>', 'Path to output directory. Type: String'],
-    debug: ['-d, --debug', 'Debug process. Type: Boolean, Default: false'],
+    lines: ['-l, --lines <number>', 'Number of lines to split.'],
+    name: ['-n, --name <newName>', 'Name for output file.'],
+    outputDir: ['-o, --outputDir <path>', 'Path to output directory.'],
+    debug: ['-d, --debug', 'Debug process.'],
   },
 };
 
@@ -54,9 +53,8 @@ const {
     columns,
     debug,
     file,
-    files,
     fileFormat,
-    flattenPath,
+    flattenPathToValue,
     lines,
     matchingValue,
     name,
@@ -67,20 +65,15 @@ const {
 const csv = new Command()
   .command(command)
   .description(description)
-  .option(parseTuple(file))
-  .option(parseTuple(files))
-  .option(parseTuple(fileFormat))
-
-  .option(parseTuple(columns))
-
-  .option(parseTuple(matchingValue))
-  .option(parseTuple(flattenPath))
-
-  .option(parseTuple(lines))
-  .option(parseTuple(name))
-
-  .option(parseTuple(outputDir))
-  .option(parseTuple(debug))
+  .option(parseFlags(file), parseDescription(file))
+  .option(parseFlags(fileFormat), parseDescription(fileFormat))
+  .option(parseFlags(columns), parseDescription(columns))
+  .option(parseFlags(matchingValue), parseDescription(matchingValue))
+  .option(parseFlags(flattenPathToValue), parseDescription(flattenPathToValue))
+  .option(parseFlags(lines), parseDescription(lines))
+  .option(parseFlags(name), parseDescription(name))
+  .option(parseFlags(outputDir), parseDescription(outputDir))
+  .option(parseFlags(debug), parseDescription(debug))
 
   .action(async (action: action, options: CONFIG['options']) => {
     await bootstrap();
@@ -89,9 +82,8 @@ const csv = new Command()
       columns,
       debug,
       file,
-      files,
       fileFormat,
-      flattenPath,
+      flattenPathToValue,
       lines,
       matchingValue,
       name,
@@ -101,7 +93,7 @@ const csv = new Command()
     switch (action) {
       case 'concat':
         return concatService({
-          files,
+          file,
           concatColumns: columns,
           matchingValue,
           outputDir,
@@ -112,7 +104,7 @@ const csv = new Command()
         return flattenService({
           file,
           columns,
-          flattenPath,
+          flattenPathToValue,
           outputDir,
           name,
           fileFormat,

@@ -1,6 +1,7 @@
-import { logInfo } from './logging';
+import { logDebug, logInfo } from './logging';
 
-type includes = 'all' | 'none';
+type includesValues = 'preferences' | 'segments' | 'addresses' | 'organizations';
+type includes = 'all' | includesValues[] | 'none';
 
 export const date = () => {
   const year = new Date().getFullYear();
@@ -9,11 +10,14 @@ export const date = () => {
   return `${day}-${month}-${year}`;
 };
 
-export const parseTuple = (arr: string[]): string => {
-  return `${arr}`;
+export const parseFlags = (arr: string[]): string => {
+  return arr[0];
+};
+export const parseDescription = (arr: string[]): string => {
+  return arr[1];
 };
 
-export const updateURL = ({ value, baseUrl, request }) => {
+export const updateURL = ({ value, baseUrl, request, debug }) => {
   const _BASE_URL = baseUrl;
   const _REQUEST = request;
   const _INJECTED_VALUE = value;
@@ -61,31 +65,55 @@ export const updateURL = ({ value, baseUrl, request }) => {
           .join('=')
       : null;
 
-  return _INJECTED_VALUE
-    ? _INJECTED_VALUE === 'userId' || 'orderId'
+  const result = _INJECTED_VALUE
+    ? _INJECTED_VALUE === 'userId' || _INJECTED_VALUE === 'orderId'
       ? _ID_I_V
       : _EMAIL_I_V
     : _BASE_URL;
+
+  if (debug) {
+    logDebug({
+      data: {
+        result,
+        value,
+        baseUrl,
+        request,
+      },
+      message: 'Updating URL',
+    });
+  }
+
+  return result;
 };
 
-export const _makeUserIdUrl = (userId: string, includes: includes) => {
-  if (includes && includes !== 'none') {
-    return `${process.env.USER_SERVICE_HOST}/v1/users/${
-      userId.toString() !== 'true' ? userId.trim() : process.env.USER_ID
-    }?includes=segments,organizations,addresses,preferences`;
+export const _makeUserIdUrl = (userId: string, includes: includes = 'none') => {
+  if (includes && includes === 'all') {
+    return `${
+      process.env.USER_SERVICE_HOST
+    }/v1/users/${userId.trim()}?includes=segments,organizations,addresses,preferences`;
   }
-  return `${process.env.USER_SERVICE_HOST}/v1/users/${
-    userId.toString() !== 'true' ? userId.trim() : process.env.USER_ID
-  }`;
+  if (includes && Array.isArray(includes)) {
+    return `${process.env.USER_SERVICE_HOST}/v1/users/${userId.trim()}?includes=${includes.join(
+      ',',
+    )}`;
+  }
+  return `${process.env.USER_SERVICE_HOST}/v1/users/${userId.trim()}`;
 };
 
-export const _makeUserEmailUrl = (emailId: string, includes: includes) => {
-  if (includes && includes !== 'none') {
-    return `${process.env.USER_SERVICE_HOST}/v1/users?emailId=${
-      emailId.toString() !== 'true' ? emailId.trim() : process.env.USER_EMAIL
-    }&includes=segments,organizations,addresses,preferences`;
+export const _makeSegmentsUrl = () => {
+  return `${process.env.USER_SERVICE_HOST}/v1/segments`;
+};
+
+export const _makeUserEmailUrl = (emailId: string, includes: includes = 'none') => {
+  if (includes && includes == 'all') {
+    return `${
+      process.env.USER_SERVICE_HOST
+    }/v1/users?emailId=${emailId.trim()}&includes=segments,organizations,addresses,preferences`;
   }
-  return `${process.env.USER_SERVICE_HOST}/v1/users?emailId=${
-    emailId.toString() !== 'true' ? emailId.trim() : process.env.USER_EMAIL
-  }`;
+  if (includes && Array.isArray(includes)) {
+    return `${
+      process.env.USER_SERVICE_HOST
+    }/v1/users?emailId=${emailId.trim()}&includes=${includes.join(',')}`;
+  }
+  return `${process.env.USER_SERVICE_HOST}/v1/users?emailId=${emailId.trim()}`;
 };

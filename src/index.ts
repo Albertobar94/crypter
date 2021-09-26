@@ -3,18 +3,16 @@ import { program } from 'commander';
 import dotenv from 'dotenv';
 import getEnv from './commands/env.command';
 import user from './commands/user.command';
-// import getCount from '../_files/reports/get-count.command';
 import updateOrderId from './commands/orders.command';
 import csv from './commands/csv.command';
 
 dotenv.config();
 
 program
-  .version('0.8.2')
+  .version('0.10.1')
 
   .addCommand(getEnv)
   .addCommand(user)
-  // .addCommand(getCount)
   .addCommand(csv)
   .addCommand(updateOrderId)
 

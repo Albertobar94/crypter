@@ -13,7 +13,6 @@ interface Props {
   matchingValue?: string;
 }
 
-// *
 export const normalizeData = ({ columns, arr, matchingValue, debug }) => {
   const one = columns.map(column => {
     if (debug) {
@@ -93,7 +92,6 @@ export const readCsvStream = ({
   });
 };
 
-// *
 export const extractNestedData = ({ data, pToExtract, columns, debug }: Props) => {
   let result = [];
 
