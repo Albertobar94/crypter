@@ -1,4 +1,4 @@
-import { date } from '../../utils/helpers';
+import { date } from '../../common/helpers';
 import { readFile, writeFile } from '../../utils/io';
 import {
   logError,
@@ -9,16 +9,17 @@ import {
   createLogger,
   startLogger,
 } from '../../utils/logging';
-import { extractNestedData } from '../../utils/transformers';
+import { extractNestedData } from '../../utils/utilities';
+import { FFormant } from '../../common/types';
 
 interface Props {
   file?: string;
   columns: string;
   flattenPathToValue?: string;
   outputDir: string;
-  fileFormat?: 'csv' | 'json';
+  fileFormat?: keyof typeof FFormant;
   name?: string;
-  transformer?: (data: any) => void;
+  transformer?: (data: any) => Record<string, any>[];
   debug?: boolean;
 }
 
@@ -65,7 +66,7 @@ const flattenService = async ({
       options: { text: 'Reading file in flattenService...' },
     });
 
-    const data = await readFile({ file, parser: fileFormat });
+    const data = await readFile({ file, format: fileFormat! });
 
     updateLogger({
       name: 'flattenService',
@@ -75,8 +76,8 @@ const flattenService = async ({
     const content = transformer({ data, flattenPathToValue, columns, debug });
 
     writeFile({
-      outputFile: name ? `${outputDir}/${name}.csv` : `${outputDir}/extracted-data-${date()}.csv`,
-      parser: fileFormat,
+      exportPath: name ? `${outputDir}/${name}.csv` : `${outputDir}/extracted-data-${date()}.csv`,
+      format: fileFormat,
       columns: [flattenPathToValue!.split('.')[0], ...columns.split(',')],
       content,
     });

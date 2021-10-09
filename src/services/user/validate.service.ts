@@ -1,14 +1,15 @@
 import { doSequencialRequest } from '../../utils/requestSequencially';
-import { exportReport } from '../../utils/io';
-import { readFile } from '../../utils/io';
+import { readFile, writeFile } from '../../utils/io';
 import {
   failLogger,
   startLogger,
   succeedLogger,
   updateLogger,
   createLogger,
+  logDebug,
 } from '../../utils/logging';
-import { validateErrorsTransformer, validateTransformer } from '../../utils/callbacks';
+import { validateErrorsTransformer, validateTransformer } from '../../common/mappers';
+import { FFormant } from '../../common/types';
 
 interface Props {
   file: string;
@@ -39,6 +40,20 @@ const validateUsers = async ({
       options: { text: 'Running validateUsers...' },
     });
 
+    if (debug) {
+      logDebug({
+        data: {
+          file,
+          fileFormat,
+          outputPath,
+          debug,
+          dryRun,
+          type,
+        },
+        message: 'Debugging validateUsers...',
+      });
+    }
+
     const _URL =
       type === 'userId'
         ? `${process.env.USER_SERVICE_HOST}/v1/users/:userId`
@@ -49,7 +64,7 @@ const validateUsers = async ({
     const _DATA_EXPORT_PATH = `${outputPath}/data.${fileFormat.toLocaleLowerCase()}`;
     const _ERRORS_EXPORT_PATH = `${outputPath}/errors.${fileFormat.toLocaleLowerCase()}`;
 
-    const data = await readFile({ file, parser: fileFormat });
+    const data = await readFile({ file, format: fileFormat });
 
     const { logData, errors } = await doSequencialRequest({
       data,
@@ -63,12 +78,29 @@ const validateUsers = async ({
         Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
         'x-tenant-id': process.env.FACL_TENANT_ID,
       },
-      logDataCallback: async res => {
+      logDataCallback: async (res, req) => {
         const { data, body } = res;
-        return validateTransformer({ payload: body, transformType: type });
+        if (debug) {
+          logDebug({
+            data: {
+              req,
+            },
+            message: 'Debugging validateUsers...',
+          });
+        }
+        return validateTransformer({ payload: body, metadata: req, transformType: type });
       },
-      errorsCallback: async error => {
-        return validateErrorsTransformer({ error, transformType: type });
+      errorsCallback: async (error, req) => {
+        if (debug) {
+          logDebug({
+            data: {
+              req,
+              error,
+            },
+            message: 'Debugging validateUsers...',
+          });
+        }
+        return validateErrorsTransformer({ error, metadata: req, transformType: type });
       },
       loggerInstance: instance,
       debug,
@@ -81,8 +113,16 @@ const validateUsers = async ({
     });
 
     return (
-      await exportReport(logData, _DATA_EXPORT_PATH),
-      await exportReport(errors, _ERRORS_EXPORT_PATH)
+      writeFile({
+        content: logData,
+        exportPath: _DATA_EXPORT_PATH,
+        format: FFormant.csv,
+      }),
+      writeFile({
+        content: errors,
+        exportPath: _ERRORS_EXPORT_PATH,
+        format: FFormant.csv,
+      })
     );
   } catch (error) {
     failLogger({

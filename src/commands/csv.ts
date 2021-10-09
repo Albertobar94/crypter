@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { parseDescription, parseFlags } from '../utils/helpers';
+import { parseDescription, parseFlags } from '../common/helpers';
 import { concatService, flattenService, splitFileService } from '../services/csv';
 import { bootstrap } from '../utils/bootstrap';
 
@@ -23,13 +23,29 @@ type CONFIG = {
 
 const CONFIG = {
   command: 'csv <action>',
-  description: 'concat | flatten | split, Csv files...',
+  description: `
+  Actions: concat | flatten | split
+
+  ** Minimum Requirements to run **
+  - concat: You must provide at least 2 files, "file1,file2", and a --matchingValue 
+    which must be present in both file the same exact name column.
+  - flatten: You must provide a file and a flattenPath for a value in a csv column which is in JSON format.
+  - split: You must provide the file you want to split.
+
+  examples:
+  - crypter csv split -l 500 -f './file.csv' -n "splitted" -o "./"
+    Crypter will split the file -f into files of 500 lines and add the name "splitted" to each new file created.
+
+  - crypter csv concat -f "./file.csv,./_files/file.csv" -c "emailId,userId,accountId" -M "emailId" -o "./_files"
+    Crypter will concat both files and create a new file that has the specified columns in -c and will match the rows by 
+    the emailId value that must be present in both files and output the new file in the value provided to -o
+  `,
   options: {
-    file: ['-f, --file <path> ', 'File name.'],
-    fileFormat: ['-F, --fileFormat <format> ', 'File format to Read and Parse file.'],
+    file: ['-f, --file <path> ', 'File path to read.'],
+    fileFormat: ['-F, --fileFormat <format> ', 'Format of the file to read.'],
     columns: [
       '-c, --columns <columns>',
-      'Names of columns to be in the new file, separated by ",".',
+      'Names for columns to be in the new file, separated by ",".',
     ],
     matchingValue: [
       '-M, --matchingValue <value>',
@@ -37,12 +53,12 @@ const CONFIG = {
     ],
     flattenPathToValue: [
       '-V, --flattenPathToValue <path>',
-      '<Key>.<Key>.<key>...<Value>., Object like access path to value',
+      'Object like access path to the value we want to flatten ->> {Key}.{Key}...{Value}',
     ],
     lines: ['-l, --lines <number>', 'Number of lines to split.'],
-    name: ['-n, --name <newName>', 'Name for output file.'],
-    outputDir: ['-o, --outputDir <path>', 'Path to output directory.'],
-    debug: ['-d, --debug', 'Debug process.'],
+    name: ['-n, --name <newName>', 'Name for the output file.'],
+    outputDir: ['-o, --outputDir <path>', 'Path to the output directory.'],
+    debug: ['-d, --debug', 'Debug'],
   },
 };
 

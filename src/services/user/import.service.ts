@@ -1,8 +1,8 @@
 import got from 'got/dist/source';
-import { exportReport } from '../../utils/io';
-import { readFile } from '../../utils/io';
+import { readFile, writeFile } from '../../utils/io';
 import { logData, logInfo, logError } from '../../utils/logging';
-import { transformRecordForUserImport } from '../../utils/transformers';
+import { transformRecordForUserImport } from '../../common/mappers';
+import { FFormant } from '../../common/types';
 
 const METADATA = {
   importUser: 'importUser',
@@ -27,7 +27,7 @@ const importUser = async ({ file, outputDir }: Props) => {
   try {
     if (!file) throw new Error();
 
-    const data = await readFile({ file, parser: 'csv' });
+    const data = await readFile({ file, format: 'csv' });
 
     const requestBodys = data.map(record => {
       return transformRecordForUserImport(record);
@@ -160,9 +160,22 @@ const importUser = async ({ file, outputDir }: Props) => {
     while (promise < requestsLength) {
       await sleep(1000);
     }
-    await exportReport(retryableErrors, EXPORT_PATH_RETRYABLE_ERROR_REPORT);
-    await exportReport(nonRetryableErrors, EXPORT_PATH_NON_RETRYABLE_ERROR_REPORT);
-    await exportReport(users, EXPORT_PATH_logData_REPORT);
+
+    writeFile({
+      content: retryableErrors,
+      exportPath: EXPORT_PATH_RETRYABLE_ERROR_REPORT,
+      format: FFormant.csv,
+    });
+    writeFile({
+      content: nonRetryableErrors,
+      exportPath: EXPORT_PATH_NON_RETRYABLE_ERROR_REPORT,
+      format: FFormant.csv,
+    });
+    writeFile({
+      content: users,
+      exportPath: EXPORT_PATH_logData_REPORT,
+      format: FFormant.csv,
+    });
   } catch (error) {
     logError({
       serviceName: METADATA.importUser,

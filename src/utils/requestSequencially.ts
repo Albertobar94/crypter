@@ -1,8 +1,8 @@
 import got from 'got/dist/source';
 import cliProgress from 'cli-progress';
 
-import { updateURL } from './helpers';
-import { logError, logInfo, logData, logDebug } from './logging';
+import { updateURL } from '../common/helpers';
+import { logError, logInfo, logData, logDebug, createLogger } from './logging';
 import { halt } from './bootstrap';
 
 interface Props {
@@ -34,7 +34,7 @@ const doSequencialRequest = async ({
   injectValue,
   logDataCallback,
   errorsCallback,
-  loggerInstance,
+  loggerInstance = createLogger(),
   debug = false,
 }: Props): Promise<any> => {
   const _DATA_LENGTH = data.length;
@@ -66,10 +66,12 @@ const doSequencialRequest = async ({
   for await (let _REQUEST of _DATA) {
     // Reset //
     if (_COUNTER === _CONCURRENCY) {
-      logDebug({
-        serviceName: 'doSequencialRequest',
-        message: `${_TOTAL_COUNT} requests so far, finished batch size of ${_COUNTER} going to hault...`,
-      });
+      if (debug) {
+        logDebug({
+          serviceName: 'doSequencialRequest',
+          message: `${_TOTAL_COUNT} requests so far, finished batch size of ${_COUNTER} going to hault...`,
+        });
+      }
 
       _COUNTER = 0;
       loggerInstance.update('SP_SR', {

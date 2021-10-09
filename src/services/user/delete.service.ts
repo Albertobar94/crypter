@@ -1,16 +1,15 @@
 import inquirer from 'inquirer';
-
 import { getUser as getUserBackup } from './get.service';
-
 import { doSequencialRequest } from '../../utils/requestSequencially';
-import { exportReport } from '../../utils/io';
-import { readFile } from '../../utils/io';
+import { readFile, writeFile } from '../../utils/io';
 import { failLogger, startLogger, succeedLogger, createLogger } from '../../utils/logging';
 import { halt } from '../../utils/bootstrap';
+import { AxiosResponse } from 'axios';
+import { FFormant, Includes } from '../../common/types';
 
 interface Props {
   userId: string;
-  userEmail: string;
+  emailId: string;
   file: string;
   fileFormat: 'csv' | 'json';
   outputDir: string;
@@ -20,14 +19,14 @@ interface Props {
 
 const deleteUsers = async ({
   userId,
-  userEmail,
+  emailId,
   file,
   fileFormat = 'csv',
   outputDir,
   debug,
   dryRun,
 }: Props) => {
-  if (!userId && !file && !userEmail) throw new Error('File, userId or emailId must be specified');
+  if (!userId && !file && !emailId) throw new Error('File, userId or emailId must be specified');
   if (!outputDir) throw new Error('Output path must be given');
 
   const _url = userId
@@ -35,7 +34,7 @@ const deleteUsers = async ({
     : `${process.env.USER_SERVICE_HOST}/v1/users/:userId`;
   const _logData_exportPath = `${outputDir}/success.${fileFormat.toLocaleLowerCase()}`;
   const _errors_exportPath = `${outputDir}/error.${fileFormat.toLocaleLowerCase()}`;
-  const _user = userId ?? userEmail;
+  const _user = userId ?? emailId;
   let instance: any;
 
   try {
@@ -43,7 +42,7 @@ const deleteUsers = async ({
       case undefined:
         const data = await readFile({
           file,
-          parser: fileFormat,
+          format: fileFormat,
         });
 
         const { confirm } = await inquirer.prompt({
@@ -94,8 +93,18 @@ const deleteUsers = async ({
           debug,
         });
 
-        await exportReport(logData, _logData_exportPath);
-        await exportReport(errors, _errors_exportPath);
+        writeFile({
+          content: logData,
+          exportPath: _logData_exportPath,
+          format: FFormant.csv,
+          debug,
+        });
+        writeFile({
+          content: errors,
+          exportPath: _errors_exportPath,
+          format: FFormant.csv,
+          debug,
+        });
         break;
       default:
         const { first } = await inquirer.prompt({
@@ -106,19 +115,20 @@ const deleteUsers = async ({
         });
         if (!first) break;
 
-        const res = await getUserBackup({
+        const { body }: any = await getUserBackup({
           userId,
-          userEmail,
+          emailId,
           debug,
-          includes: 'none',
-          _hideLogs: true,
+          includes: Includes.none,
+          hideLogs: true,
         });
 
+        // TODO cuidado si hay error
         const { second } = await inquirer.prompt({
           type: 'confirm',
           name: 'second',
           message: `Are you sure you want to delete user with id ${
-            userId ? res.data.data.user.userId : res.data.data.users?.[0]?.userId
+            userId ? body?.data?.user?.userId : body?.data?.users?.[0]?.userId
           }?`,
           default: false,
         });
@@ -127,10 +137,10 @@ const deleteUsers = async ({
         if (dryRun) {
           return await getUserBackup({
             userId,
-            userEmail,
+            emailId,
             debug,
             includes: 'none',
-            _hideLogs: false,
+            hideLogs: false,
           });
         }
 
@@ -144,9 +154,9 @@ const deleteUsers = async ({
 
         await getUserBackup({
           userId,
-          userEmail,
+          emailId,
           outputDir,
-          fileFormat: 'json',
+          // fileFormat: 'json',
           debug,
           includes: 'all',
         });

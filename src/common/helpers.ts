@@ -1,9 +1,7 @@
-import { logDebug, logInfo } from './logging';
+import { logDebug, logInfo } from '../utils/logging';
+import { IncludesType } from './types';
 
-type includesValues = 'preferences' | 'segments' | 'addresses' | 'organizations';
-type includes = 'all' | includesValues[] | 'none';
-
-export const date = () => {
+export const date = (): string => {
   const year = new Date().getFullYear();
   const month = new Date().getMonth();
   const day = new Date().getDate();
@@ -13,11 +11,13 @@ export const date = () => {
 export const parseFlags = (arr: string[]): string => {
   return arr[0];
 };
+
 export const parseDescription = (arr: string[]): string => {
   return arr[1];
 };
 
-export const updateURL = ({ value, baseUrl, request, debug }) => {
+// TODO Refactor
+export const updateURL = ({ value, baseUrl, request, debug }): string => {
   const _BASE_URL = baseUrl;
   const _REQUEST = request;
   const _INJECTED_VALUE = value;
@@ -86,7 +86,7 @@ export const updateURL = ({ value, baseUrl, request, debug }) => {
   return result;
 };
 
-export const _makeUserIdUrl = (userId: string, includes: includes = 'none') => {
+export const makeUserIdUrl = (userId: string, includes: IncludesType = 'none'): string => {
   if (includes && includes === 'all') {
     return `${
       process.env.USER_SERVICE_HOST
@@ -100,11 +100,14 @@ export const _makeUserIdUrl = (userId: string, includes: includes = 'none') => {
   return `${process.env.USER_SERVICE_HOST}/v1/users/${userId.trim()}`;
 };
 
-export const _makeSegmentsUrl = () => {
+export const makeSegmentsUrl = (): string => {
   return `${process.env.USER_SERVICE_HOST}/v1/segments`;
 };
 
-export const _makeUserEmailUrl = (emailId: string, includes: includes = 'none') => {
+export const makeEmailIdUrl = (
+  emailId: string,
+  includes: IncludesType | Exclude<IncludesType, 'all' | 'none'>[] = 'none',
+): string => {
   if (includes && includes == 'all') {
     return `${
       process.env.USER_SERVICE_HOST

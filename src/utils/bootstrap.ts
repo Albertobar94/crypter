@@ -2,7 +2,11 @@ import figlet from 'figlet';
 import consoleClear from 'console-clear';
 import { startLogger, succeedLogger, createLogger } from './logging';
 
-const generateAsciiArt = async () => {
+const haltTime = 1000;
+const keepHistory = true;
+const instance = createLogger();
+
+const generateAsciiArt = async (): Promise<unknown> => {
   return new Promise((resolve, reject) => {
     figlet.text(
       'CRYPTER',
@@ -19,15 +23,14 @@ const generateAsciiArt = async () => {
   });
 };
 
-export const halt = async (ms: number) => {
+export const halt = async (ms: number): Promise<unknown> => {
   return new Promise(resolve => setTimeout(resolve, ms ?? 10));
 };
 
-export const bootstrap = async () => {
-  consoleClear(true);
-  const instance = createLogger();
+export const bootstrap = async (): Promise<void> => {
+  consoleClear(keepHistory);
   console.log(await generateAsciiArt());
   startLogger({ instance, name: 'Bootstrap', options: { text: 'Starting command...' } });
-  await halt(1500);
+  await halt(haltTime);
   succeedLogger({ instance, name: 'Bootstrap', options: { text: "Welcome! Let's work..." } });
 };

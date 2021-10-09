@@ -1,43 +1,43 @@
 import { Parser } from 'json2csv';
 import fs from 'fs';
 import {
-  logError,
   createLogger,
   startLogger,
   succeedLogger,
   failLogger,
   logDebug,
+  updateLogger,
 } from './logging';
-import { readCsvStream } from './transformers';
+import { readCsvStream } from './utilities';
+import { FFormant } from '../common/types';
 import path from 'path';
 
 interface readProps {
-  file?: string;
-  parser?: 'json' | 'csv';
+  file: string;
+  format: 'json' | 'csv';
   matchingValue?: string;
-  columns?: string[];
   debug?: boolean;
 }
 interface writeProps {
-  outputFile?: string;
-  content?: any;
-  parser?: 'json' | 'csv';
-  columns?: string[];
+  exportPath: string;
+  content: Record<string, any>[];
+  format?: 'json' | 'csv';
   debug?: boolean;
+  columns?: any;
 }
 
-export const readFile = async ({ file, parser = 'csv', matchingValue }: readProps) => {
+export const readFile = async ({ file, format = 'csv', matchingValue }: readProps) => {
   let data: any;
-
   const instance = createLogger();
+
   startLogger({
     instance,
     name: 'SP_R',
-    options: { text: `Running readFile... - Format is ${parser}` },
+    options: { text: `Running readFile... - Format is ${format}` },
   });
 
   try {
-    switch (parser) {
+    switch (format) {
       case 'csv':
         data = await readCsvStream({ file, matchingValue: matchingValue! });
         return data;
@@ -61,82 +61,34 @@ export const readFile = async ({ file, parser = 'csv', matchingValue }: readProp
   }
 };
 
-export const writeFile = async ({
-  outputFile,
-  content,
-  parser = 'csv',
-  columns,
-  debug,
-}: writeProps) => {
-  if (!outputFile) throw new Error('File Path must be specified');
-  if (!content) throw new Error('Content must be provided');
+export const writeFile = ({ content, exportPath, format, debug, columns }: writeProps) => {
+  if (!exportPath) throw new Error('Export Path must be specified');
+  if (!content.length) return;
+
+  let contentParsed: string;
+  const csvColumns = columns ?? Object.keys(content?.[0]);
+
   if (debug) {
     logDebug({
       data: {
-        outputFile,
-        parser,
+        exportPath,
+        format,
         content,
-        columns,
+        csvColumns,
       },
       message: `Debugging...`,
     });
   }
 
-  let contentParsed: string;
-
-  const instance = createLogger();
-
-  switch (parser) {
-    case 'json':
-      startLogger({
-        instance,
-        name: 'writeFile',
-        options: { text: 'Writing file in Json format' },
-      });
+  switch (format) {
+    case FFormant.json:
       contentParsed = JSON.stringify(content, null, 2);
-      break;
-    case 'csv':
-      startLogger({ instance, name: 'writeFile', options: { text: 'Writing file in Csv format' } });
+      return fs.writeFileSync(exportPath, contentParsed);
+    case FFormant.csv:
       // @ts-expect-error
-      const parser = new Parser({ columns });
+      const parser = new Parser({ csvColumns });
       const csv = parser.parse(content);
       contentParsed = csv;
-      break;
-  }
-
-  try {
-    fs.writeFileSync(outputFile, contentParsed);
-  } catch (error) {
-    failLogger({
-      instance,
-      name: 'writeFile',
-      options: { text: `Failed while creating file at ${path.join(process.env.PWD!, outputFile)}` },
-    });
-    logError({
-      message: `FAILED while Writing File with file path of ${outputFile}`,
-    });
-    console.error(error);
-  } finally {
-    succeedLogger({
-      instance,
-      name: 'writeFile',
-      options: { text: `created file at ${path.join(process.env.PWD!, outputFile)}` },
-    });
-  }
-};
-
-// TODO remove this
-export const exportReport = async (results, EXPORT_PATH) => {
-  console.log(`${EXPORT_PATH} ---> ${results.length}`);
-  if (results.length) {
-    // @ts-expect-error
-    const parser = new Parser(Object.keys(results[0]));
-    const csv = parser.parse(results);
-    try {
-      fs.writeFileSync(EXPORT_PATH, csv);
-    } catch (error) {
-      console.log(error);
-      fs.writeFileSync(EXPORT_PATH.split('/').pop(), csv);
-    }
+      return fs.writeFileSync(exportPath, contentParsed);
   }
 };

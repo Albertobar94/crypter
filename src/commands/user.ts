@@ -6,41 +6,48 @@ import {
   validateUsers as validateUsersService,
   userSegment as userSegmentService,
 } from '../services/user';
-import { parseDescription, parseFlags } from '../utils/helpers';
+import { parseDescription, parseFlags } from '../common/helpers';
 import { bootstrap } from '../utils/bootstrap';
+import { FFormant, IncludesType } from '../common/types';
+import { MethodType } from '../services/user/segments.service';
 
-type action =
-  | 'get'
-  | 'update'
-  | 'delete'
-  | 'validate'
-  | 'import'
-  | 'get-segments'
-  | 'post-segments';
+/*----------  Types  ----------*/
 
-type CONFIG = {
-  command: string;
+type ActionType = keyof typeof Action;
+const Action = {
+  get: 'get',
+  update: 'update',
+  delete: 'delete',
+  validate: 'validate',
+  import: 'import',
+  'get-Segments': 'get-segments',
+  'post-Segments': 'post-segments',
+};
+type Config = {
+  command: ActionType;
   description: string;
   options: {
     userId: string;
-    userEmail: string;
-    includes: 'all' | 'none';
+    emailId: string;
+    file: string;
+    includes: IncludesType;
     segments: string;
     debug: boolean;
     dryRun: boolean;
-    file: string;
-    fileFormat: 'csv' | 'json';
+    fileFormat: FFormant;
     outputDir: string;
     type: 'userId' | 'emailId';
   };
 };
 
-const CONFIG = {
+/*----------  Config  ----------*/
+
+const config = {
   command: 'user <action>',
   description: `Perform user tasks.
 
-  You can provide a single user as userEmail or userId
-  Or instead, you can provide a file to read n amount of userIds or userEmails.
+  You can provide a single user as emailId or userId
+  Or instead, you can provide a file to read n amount of userIds or emailIds.
 
   ** Alert **
   the columns in the csv file to read must be named same as in core-user service, as following:
@@ -58,7 +65,7 @@ const CONFIG = {
   `,
   options: {
     userId: ['-i, --userId <id>', 'Id of the user in core-user service.'],
-    userEmail: ['-e, --userEmail <email>', 'Email of the user in core-user service.'],
+    emailId: ['-e, --emailId <email>', 'Email of the user in core-user service.'],
     includes: [
       '-I, --includes <values>',
       'Includes param to add to the url, the value is in a string separated by ",".',
@@ -70,18 +77,20 @@ const CONFIG = {
     file: ['-f, --file <path> ', 'File path to read.'],
     fileFormat: ['-F, --fileFormat <format> ', 'Format of the file to read.'],
     outputDir: ['-o, --outputDir <path>', 'Path to the desired output directory.'],
-    type: ['-t, --type', 'Type of query to retrieve the users. Either by userId or emailId.'],
+    type: [
+      '-t, --type <value>',
+      'Type of query to retrieve the users. Either by userId or emailId.',
+    ],
     debug: ['-d, --debug', 'Output debug logs.'],
     dryRun: ['-D, --dryRun', 'Perform a dry run and log the output.'],
   },
 };
-
 const {
   command,
   description,
   options: {
     userId,
-    userEmail,
+    emailId,
     includes,
     segments,
     debug,
@@ -91,32 +100,29 @@ const {
     outputDir,
     type,
   },
-} = CONFIG;
+} = config;
+
+/*----------  Command  ----------*/
 
 const user = new Command()
   .command(command)
   .description(description)
-
   .option(parseFlags(userId), parseDescription(userId))
-  .option(parseFlags(userEmail), parseDescription(userEmail))
-
+  .option(parseFlags(emailId), parseDescription(emailId))
   .option(parseFlags(file), parseDescription(file))
   .option(parseFlags(fileFormat), parseDescription(fileFormat))
-
   .option(parseFlags(outputDir), parseDescription(outputDir))
-
   .option(parseFlags(type), parseDescription(type))
   .option(parseFlags(includes), parseDescription(includes))
   .option(parseFlags(segments), parseDescription(segments))
   .option(parseFlags(debug), parseDescription(debug))
   .option(parseFlags(dryRun), parseDescription(dryRun))
-
-  .action(async (action: action, options: CONFIG['options']) => {
+  .action(async (action: ActionType, options: Config['options']) => {
     await bootstrap();
 
     const {
       userId,
-      userEmail,
+      emailId,
       includes,
       segments,
       debug,
@@ -128,60 +134,63 @@ const user = new Command()
     } = options;
 
     switch (action) {
-      case 'get':
-        return getUserService({
+      case Action.get:
+        await getUserService({
+          file,
           userId,
-          userEmail,
+          emailId,
           includes,
           outputDir,
-          fileFormat,
           debug,
         });
-      case 'import':
-        return importUserService({ file, outputDir });
-      case 'delete':
-        return deleteUsersService({
+        return;
+      case Action.update:
+        await importUserService({ file, outputDir });
+        return;
+      case Action.delete:
+        await deleteUsersService({
           userId,
-          userEmail,
+          emailId,
           file,
           fileFormat,
           outputDir,
           debug,
           dryRun,
         });
-      case 'validate':
-        return validateUsersService({
+        return;
+      case Action.validate:
+        await validateUsersService({
           file,
           fileFormat,
           outputPath: outputDir,
-          type: type,
+          type,
           debug,
           dryRun,
         });
-      case 'get-segments':
-        return userSegmentService({
+        return;
+      case Action['get-Segments']:
+        await userSegmentService({
           file,
-          fileFormat,
+          emailId,
+          segmentNames: segments,
+          method: MethodType.get,
           outputDir,
-          action: 'get',
           debug,
-          userEmail,
         });
-      case 'post-segments':
-        return userSegmentService({
+        return;
+      case Action['post-Segments']:
+        await userSegmentService({
           file,
-          fileFormat,
           outputDir,
-          action: 'post',
-          segments,
+          segmentNames: segments,
+          method: MethodType.post,
           debug,
           dryRun,
-          userEmail,
+          emailId,
         });
+        return;
       default:
-        throw new Error(
-          'Action must be get | update | delete | validate | import | get-segments | post-segments',
-        );
+        throw new Error(`Action must be ${Object.keys(Action).join(' | ')}`);
     }
   });
 

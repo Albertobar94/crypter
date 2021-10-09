@@ -1,5 +1,5 @@
 import path from 'path/posix';
-import { normalizeData } from '../../utils/transformers';
+import { normalizeData } from '../../utils/utilities';
 import { readFile, writeFile } from '../../utils/io';
 import {
   logError,
@@ -9,6 +9,7 @@ import {
   failLogger,
   succeedLogger,
 } from '../../utils/logging';
+import { FFormant } from '../../common/types';
 
 interface Props {
   file?: string;
@@ -38,19 +39,19 @@ const concatService = async ({
       message: 'Data supplied to service',
     });
   }
-
-  let normalizedData: any[] = [];
-  const instance = createLogger();
-  const fs = file!.split(',');
-  const cc = concatColumns!.split(',');
-  const outputFile =
-    name && name !== '' ? `${outputDir}/${name}.csv` : `${outputDir}/concatenated-file.csv`;
-
   if (!file) throw new Error('File Paths must be specified');
   if (!concatColumns) throw new Error('concatColumns must be specified');
   if (!matchingValue) throw new Error('Matching value must be specified');
   if (!outputDir) throw new Error('outputDir must be specified');
   if (!matchingValue) throw Error('No value for Exact Property was provided');
+
+  let normalizedData: any[] = [];
+  const instance = createLogger();
+  const fs = file.split(',');
+  const cc = concatColumns.split(',');
+  const outputFile =
+    name && name !== '' ? `${outputDir}/${name}.csv` : `${outputDir}/concatenated-file.csv`;
+
   if (fs && fs.length > 2) throw Error('File Paths must be only two!');
   if (cc && cc.length < 1) throw Error('Columns must be at least one!');
 
@@ -63,6 +64,7 @@ const concatService = async ({
     const promises = fs.map(file => {
       return readFile({
         file,
+        format: FFormant.csv,
         matchingValue,
       });
     });
@@ -91,11 +93,10 @@ const concatService = async ({
     }
 
     // Output file Stage //
-    await writeFile({
-      outputFile,
+    writeFile({
+      exportPath: outputFile,
       content: normalizedData,
-      parser: 'csv',
-      columns: cc,
+      format: FFormant.csv,
     });
   } catch (error) {
     failLogger({

@@ -1,7 +1,7 @@
 import CSV from 'csv-split-stream';
 import fs from 'fs';
 import path from 'path/posix';
-import { date } from '../../utils/helpers';
+import { date } from '../../common/helpers';
 import {
   failLogger,
   logDebug,
