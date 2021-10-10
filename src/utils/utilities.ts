@@ -32,12 +32,11 @@ export const normalizeData = ({ columns, arr, matchingValue, debug }) => {
   return data;
 };
 
-// TODO
-export const readCsvStream = ({
+export const csvReadStream = ({
   file,
   matchingValue,
   debug,
-}: Props): Promise<Record<string, unknown>> => {
+}: Props): Promise<Record<string, any>> => {
   let objResult = {};
   let arrResult: any[] = [];
   let objResultLength = Object.keys(objResult).length;

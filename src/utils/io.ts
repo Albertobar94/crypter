@@ -8,26 +8,25 @@ import {
   logDebug,
   updateLogger,
 } from './logging';
-import { readCsvStream } from './utilities';
+import { csvReadStream } from './utilities';
 import { FFormant } from '../common/types';
 import path from 'path';
 
 interface readProps {
   file: string;
-  format: 'json' | 'csv';
+  format: keyof typeof FFormant;
   matchingValue?: string;
   debug?: boolean;
 }
 interface writeProps {
   exportPath: string;
   content: Record<string, any>[];
-  format?: 'json' | 'csv';
+  format: keyof typeof FFormant;
   debug?: boolean;
-  columns?: any;
+  columns?: string[];
 }
 
-export const readFile = async ({ file, format = 'csv', matchingValue }: readProps) => {
-  let data: any;
+export const readFile = async ({ file, format = FFormant.csv, matchingValue }: readProps) => {
   const instance = createLogger();
 
   startLogger({
@@ -37,12 +36,14 @@ export const readFile = async ({ file, format = 'csv', matchingValue }: readProp
   });
 
   try {
+    let data: any;
+
     switch (format) {
-      case 'csv':
-        data = await readCsvStream({ file, matchingValue: matchingValue! });
+      case FFormant.csv:
+        data = await csvReadStream({ file, matchingValue: matchingValue! });
         return data;
-      case 'json':
-        data = fs.readFileSync(file!, 'utf-8');
+      case FFormant.json:
+        data = fs.readFileSync(file, 'utf-8');
         return data;
     }
   } catch (error) {

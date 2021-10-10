@@ -1,6 +1,6 @@
 {
   "name": "catalyst-user-script",
-  "version": "0.10.1",
+  "version": "1.0.1",
   "main": "index.ts",
   "bin": {
     "crypter": "lib/index.js"
@@ -69,7 +69,6 @@
   "dependencies": {
     "axios": "^0.21.1",
     "chalk": "^4.1.2",
-    "clear": "^0.1.0",
     "cli-progress": "^3.9.0",
     "cli-spinners": "^2.6.0",
     "commander": "^8.0.0",
@@ -77,16 +76,13 @@
     "csv-parser": "^3.0.0",
     "csv-split-stream": "^1.0.2",
     "dotenv": "^10.0.0",
-    "event-stream": "^4.0.1",
     "figlet": "^1.5.0",
     "got": "^11.8.2",
     "inquirer": "^6.5.2",
     "inquirer-file-tree-selection-prompt": "^1.0.12",
-    "inquirer-fuzzy-path": "^2.3.0",
     "json2csv": "^5.0.6",
     "pino": "^6.13.1",
     "pino-pretty": "^6.0.0",
-    "spinnies": "^0.5.1",
-    "stream": "^0.0.2"
+    "spinnies": "^0.5.1"
   }
 }
