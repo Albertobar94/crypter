@@ -1,8 +1,11 @@
 import { Command } from 'commander';
 import dotenv from 'dotenv';
+import { resolve } from 'path';
 import { bootstrap } from '../utils/bootstrap';
 
-dotenv.config();
+dotenv.config({
+  path: resolve(__dirname, '../../.env'),
+});
 
 const allEnvVars = {
   AUTH_TOKEN: process.env.AUTH_TOKEN,

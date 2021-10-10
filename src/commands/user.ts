@@ -8,8 +8,7 @@ import {
 } from '../services/user';
 import { parseDescription, parseFlags } from '../common/helpers';
 import { bootstrap } from '../utils/bootstrap';
-import { FFormant, IncludesType } from '../common/types';
-import { MethodType } from '../services/user/segments.service';
+import { FFormant, IncludesType, MethodType } from '../common/types';
 
 /*----------  Types  ----------*/
 
