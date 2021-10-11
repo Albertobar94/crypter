@@ -30,7 +30,7 @@ type Config = {
     emailId: string;
     file: string;
     includes: IncludesType;
-    segments: string;
+    segmentNames: string;
     debug: boolean;
     dryRun: boolean;
     fileFormat: FFormant;
@@ -69,7 +69,7 @@ const config = {
       '-I, --includes <values>',
       'Includes param to add to the url, the value is in a string separated by ",".',
     ],
-    segments: [
+    segmentNames: [
       '-s, --segments <values>',
       'Segments names to add to a user, the value is in a string separated by ",".',
     ],
@@ -84,6 +84,7 @@ const config = {
     dryRun: ['-D, --dryRun', 'Perform a dry run and log the output.'],
   },
 };
+
 const {
   command,
   description,
@@ -91,7 +92,7 @@ const {
     userId,
     emailId,
     includes,
-    segments,
+    segmentNames,
     debug,
     dryRun,
     file,
@@ -113,7 +114,7 @@ const user = new Command()
   .option(parseFlags(outputDir), parseDescription(outputDir))
   .option(parseFlags(type), parseDescription(type))
   .option(parseFlags(includes), parseDescription(includes))
-  .option(parseFlags(segments), parseDescription(segments))
+  .option(parseFlags(segmentNames), parseDescription(segmentNames))
   .option(parseFlags(debug), parseDescription(debug))
   .option(parseFlags(dryRun), parseDescription(dryRun))
   .action(async (action: ActionType, options: Config['options']) => {
@@ -123,7 +124,7 @@ const user = new Command()
       userId,
       emailId,
       includes,
-      segments,
+      segmentNames,
       debug,
       dryRun,
       file,
@@ -171,7 +172,7 @@ const user = new Command()
         await userSegmentService({
           file,
           emailId,
-          segmentNames: segments,
+          segmentNames,
           method: MethodType.get,
           outputDir,
           debug,
@@ -181,7 +182,7 @@ const user = new Command()
         await userSegmentService({
           file,
           outputDir,
-          segmentNames: segments,
+          segmentNames,
           method: MethodType.post,
           debug,
           dryRun,
@@ -189,7 +190,7 @@ const user = new Command()
         });
         return;
       default:
-        throw new Error(`Action must be ${Object.keys(Action).join(' | ')}`);
+        throw new Error(`${'Action must be either ' + Object.keys(Action).join(' | ')}`);
     }
   });
 
