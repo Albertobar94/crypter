@@ -4,7 +4,6 @@ import { doSequencialRequest } from '../../utils/requestSequencially';
 import { readFile, writeFile } from '../../utils/io';
 import { failLogger, startLogger, succeedLogger, createLogger } from '../../utils/logging';
 import { halt } from '../../utils/bootstrap';
-import { AxiosResponse } from 'axios';
 import { FFormant, Includes } from '../../common/types';
 
 interface Props {

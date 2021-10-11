@@ -59,12 +59,10 @@ const importUser = async ({ file, outputDir }: Props) => {
 
         got({
           url: `${process.env.USER_SERVICE_HOST}/v1/users/import`,
-          // url: `http://localhost:3000/v1/users/import`,
           method: 'POST',
           headers: {
             Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
             'x-tenant-id': process.env.FACL_TENANT_ID,
-            // 'x-tenant-id': '2435f48f-a34c-414e-90d7-074562a4d557',
           },
           json: request,
           responseType: 'json',
