@@ -1,27 +1,12 @@
 import { Command } from 'commander';
 import { parseDescription, parseFlags } from '../common/helpers';
+import { CsvAction, CsvActionType, CsvConfig } from '../common/types';
 import { concatService, flattenService, splitFileService } from '../services/csv';
 import { bootstrap } from '../utils/bootstrap';
 
-type action = 'concat' | 'flatten' | 'split';
-type CONFIG = {
-  command: string;
-  description: string;
-  options: {
-    columns: string;
-    debug: boolean;
-    file: string;
-    files: string;
-    fileFormat: 'csv' | 'json';
-    flattenPathToValue: string;
-    lines: number;
-    matchingValue: string;
-    name: string;
-    outputDir: string;
-  };
-};
+/*----------  Configuration  ----------*/
 
-const CONFIG = {
+const config = {
   command: 'csv <action>',
   description: `
   Actions: concat | flatten | split
@@ -76,7 +61,9 @@ const {
     name,
     outputDir,
   },
-} = CONFIG;
+} = config;
+
+/*----------  Command  ----------*/
 
 const csv = new Command()
   .command(command)
@@ -91,7 +78,7 @@ const csv = new Command()
   .option(parseFlags(outputDir), parseDescription(outputDir))
   .option(parseFlags(debug), parseDescription(debug))
 
-  .action(async (action: action, options: CONFIG['options']) => {
+  .action(async (action: CsvActionType, options: CsvConfig['options']) => {
     await bootstrap();
 
     const {
@@ -107,7 +94,7 @@ const csv = new Command()
     } = options;
 
     switch (action) {
-      case 'concat':
+      case CsvAction.concat:
         return concatService({
           file,
           concatColumns: columns,
@@ -116,7 +103,7 @@ const csv = new Command()
           name,
           debug,
         });
-      case 'flatten':
+      case CsvAction.flatten:
         return flattenService({
           file,
           columns,
@@ -126,7 +113,7 @@ const csv = new Command()
           fileFormat,
           debug,
         });
-      case 'split':
+      case CsvAction.split:
         return splitFileService({ file, lines, name, outputDir, debug });
       default:
         throw new Error('Action must be either: split | concat | flatten');

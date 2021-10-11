@@ -7,6 +7,17 @@ export type NoUndefinedField<T> = { [P in keyof T]-?: NoUndefinedField<NonNullab
 
 /*----------  User  ----------*/
 
+export const UserAction = {
+  get: 'get',
+  update: 'update',
+  delete: 'delete',
+  validate: 'validate',
+  import: 'import',
+  'get-segments': 'get-segments',
+  'post-segments': 'post-segments',
+};
+
+export type UserAction = keyof typeof UserAction;
 export type IncludesType = keyof typeof Includes;
 export type Segments = Segment[];
 export type Segment = { id: string; name: string };
@@ -41,6 +52,23 @@ export enum Confirmation {
   Yes = 'Yes',
 }
 
+export interface UserConfig {
+  command: UserAction;
+  description: string;
+  options: UserConfigOptions;
+}
+export interface UserConfigOptions {
+  userId: string;
+  emailId: string;
+  file: string;
+  includes: IncludesType;
+  segmentNames: string;
+  debug: boolean;
+  dryRun: boolean;
+  fileFormat: FFormant;
+  outputDir: string;
+  type: PayloadType.emailId | PayloadType.userId;
+}
 export interface Props {
   action?: keyof typeof ActionType;
   type?: keyof typeof PayloadType;
@@ -56,12 +84,10 @@ export interface Props {
   debug?: boolean;
   hideLogs?: boolean;
 }
-
 export interface State {
   action: keyof typeof ActionType | null;
   payload: Payload;
 }
-
 export interface Payload {
   type: keyof typeof PayloadType | null;
   file: string | null;
@@ -74,4 +100,32 @@ export interface Payload {
   debug: boolean;
   hideLogs: boolean;
   outputDir?: string;
+}
+
+/*----------  CSV  ----------*/
+
+export enum CsvAction {
+  concat = 'concat',
+  flatten = 'flatten',
+  split = 'split',
+}
+
+export type CsvActionType = keyof typeof CsvAction;
+
+export interface CsvConfig {
+  command: string;
+  description: string;
+  options: CsvConfigOption;
+}
+export interface CsvConfigOption {
+  columns: string;
+  debug: boolean;
+  file: string;
+  files: string;
+  fileFormat: 'csv' | 'json';
+  flattenPathToValue: string;
+  lines: number;
+  matchingValue: string;
+  name: string;
+  outputDir: string;
 }

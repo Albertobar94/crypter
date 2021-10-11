@@ -8,36 +8,7 @@ import {
 } from '../services/user';
 import { parseDescription, parseFlags } from '../common/helpers';
 import { bootstrap } from '../utils/bootstrap';
-import { FFormant, IncludesType, MethodType } from '../common/types';
-
-/*----------  Types  ----------*/
-
-type ActionType = keyof typeof Action;
-const Action = {
-  get: 'get',
-  update: 'update',
-  delete: 'delete',
-  validate: 'validate',
-  import: 'import',
-  'get-Segments': 'get-segments',
-  'post-Segments': 'post-segments',
-};
-type Config = {
-  command: ActionType;
-  description: string;
-  options: {
-    userId: string;
-    emailId: string;
-    file: string;
-    includes: IncludesType;
-    segmentNames: string;
-    debug: boolean;
-    dryRun: boolean;
-    fileFormat: FFormant;
-    outputDir: string;
-    type: 'userId' | 'emailId';
-  };
-};
+import { FFormant, IncludesType, MethodType, UserAction, UserConfig } from '../common/types';
 
 /*----------  Config  ----------*/
 
@@ -117,7 +88,7 @@ const user = new Command()
   .option(parseFlags(segmentNames), parseDescription(segmentNames))
   .option(parseFlags(debug), parseDescription(debug))
   .option(parseFlags(dryRun), parseDescription(dryRun))
-  .action(async (action: ActionType, options: Config['options']) => {
+  .action(async (action: UserAction, options: UserConfig['options']) => {
     await bootstrap();
 
     const {
@@ -134,7 +105,7 @@ const user = new Command()
     } = options;
 
     switch (action) {
-      case Action.get:
+      case UserAction.get:
         await getUserService({
           file,
           userId,
@@ -144,10 +115,10 @@ const user = new Command()
           debug,
         });
         return;
-      case Action.update:
+      case UserAction.update:
         await importUserService({ file, outputDir });
         return;
-      case Action.delete:
+      case UserAction.delete:
         await deleteUsersService({
           userId,
           emailId,
@@ -158,7 +129,7 @@ const user = new Command()
           dryRun,
         });
         return;
-      case Action.validate:
+      case UserAction.validate:
         await validateUsersService({
           file,
           fileFormat,
@@ -168,7 +139,7 @@ const user = new Command()
           dryRun,
         });
         return;
-      case Action['get-Segments']:
+      case UserAction['get-Segments']:
         await userSegmentService({
           file,
           emailId,
@@ -178,7 +149,7 @@ const user = new Command()
           debug,
         });
         return;
-      case Action['post-Segments']:
+      case UserAction['post-Segments']:
         await userSegmentService({
           file,
           outputDir,
@@ -190,7 +161,7 @@ const user = new Command()
         });
         return;
       default:
-        throw new Error(`${'Action must be either ' + Object.keys(Action).join(' | ')}`);
+        throw new Error(`${'Action must be either ' + Object.keys(UserAction).join(' | ')}`);
     }
   });
 
