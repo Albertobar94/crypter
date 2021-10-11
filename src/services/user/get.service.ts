@@ -1,6 +1,4 @@
-import axios from 'axios';
 import inquirer from 'inquirer';
-import fs from 'fs';
 import path, { resolve } from 'path';
 import chalk from 'chalk';
 import { getUsersErrorsTransformer, getUsersTransformer } from '../../common/mappers';
@@ -19,42 +17,18 @@ import { doSequencialRequest } from '../../utils/requestSequencially';
 import {
   ActionType,
   Confirmation,
-  DeepPartial,
   FFormant,
   Includes,
   IncludesType,
   MethodType,
   NoUndefinedField,
   PayloadType,
+  Props,
+  State,
 } from '../../common/types';
 import got from 'got/dist/source';
-
-/*----------  Types  ----------*/
-
-interface Props {
-  type?: keyof typeof PayloadType | null;
-  file?: string | null;
-  userId?: string | null;
-  emailId?: string | null;
-  includes?: string;
-  outputDir?: string;
-  debug?: boolean;
-  hideLogs?: boolean;
-}
-
-type State = {
-  action: keyof typeof ActionType | null;
-  payload: {
-    type: keyof typeof PayloadType | null;
-    file: string | null;
-    userId: string | null;
-    emailId: string | null;
-    includes: string | null;
-    debug: boolean;
-    hideLogs: boolean;
-    outputDir?: string;
-  };
-};
+import { createState, mutateState } from '../../common/model';
+import { getDefaultOutputDir, makeSureOutputDirExists, makeUrl } from '../../common/utilities';
 
 /*----------  Utilities  ----------*/
 
@@ -277,81 +251,11 @@ async function checkForMissingState(state: State): Promise<NoUndefinedField<Stat
 
   return state as NoUndefinedField<State>;
 }
-function createState(props: Props): State {
-  const {
-    file,
-    userId,
-    emailId,
-    outputDir,
-    includes,
-    // ! Default Values
-    debug = false,
-    hideLogs = false,
-  } = props;
-  const state: State = {
-    action: null,
-    payload: {
-      type: null,
-      file: null,
-      userId: null,
-      emailId: null,
-      includes: includes ?? null,
-      debug,
-      hideLogs,
-      outputDir,
-    },
-  };
-
-  if (userId) {
-    state.action = ActionType.getSingleUser;
-    state.payload.type = PayloadType.userId;
-    state.payload.userId = userId;
-  }
-  if (emailId) {
-    state.action = ActionType.getSingleUser;
-    state.payload.type = PayloadType.emailId;
-    state.payload.emailId = emailId;
-  }
-  if (file) {
-    state.action = ActionType.getMultipleUsers;
-    state.payload.type = PayloadType.file;
-    state.payload.file = file;
-  }
-
-  return state;
-}
-function mutateState(state: State, newState: DeepPartial<State>): void {
-  (state.action = newState.action ?? state.action),
-    (state.payload = {
-      ...state.payload,
-      ...(newState.payload as State['payload']),
-    });
-}
-function getDefaultOutputDir(): string {
-  return `${process.env.DEFAULT_OUTPUT_DIR}`;
-}
 function fileIsEmpty(data: Record<string, any>): Boolean {
   return !data?.[0]?.userId && !data?.[0]?.emailId;
 }
 
-function makeUrl(type: Exclude<PayloadType, PayloadType.file>): string {
-  return type === PayloadType.userId
-    ? `${process.env.USER_SERVICE_HOST}/v1/users/:userId`
-    : `${process.env.USER_SERVICE_HOST}/v1/users?emailId=:emailId`;
-}
-function createOutputDir(dir: string): void {
-  fs.mkdirSync(dir, { recursive: true });
-}
-function dirExists(dir: string): Boolean {
-  return fs.existsSync(dir);
-}
-function makeSureOutputDirExists(defaultOutputDir: string): void {
-  if (!dirExists(defaultOutputDir)) createOutputDir(defaultOutputDir);
-}
-
-/*=============================================
-=                    Services                 =
-=============================================*/
+/*----------  Services  ----------*/
 
 const getSingleUser = async ({ userId, emailId, includes, outputDir, debug, hideLogs }: Props) => {
   const _makeUrl = userId ? makeUserIdUrl : makeEmailIdUrl;
@@ -381,7 +285,7 @@ const getSingleUser = async ({ userId, emailId, includes, outputDir, debug, hide
   // ! Log Response or Return response
   if (!outputDir) {
     if (!hideLogs) {
-      logData({
+      return logData({
         data: userId ? body.data.user : body.data,
         message: `User Information`,
       });
@@ -404,7 +308,8 @@ const getMultipleUsers = async ({ file, outputDir, debug }: Props) => {
   const exportErrorsPath = `${outputDir}/errors.csv`;
 
   const data = await readFile({ file: file!, format: FFormant.csv });
-  const injectValue = data?.[0]?.userId ? PayloadType.userId : PayloadType.emailId;
+  // TODO data?.[0]?.userId
+  const injectValue = 'userId' in data?.[0] ? PayloadType.userId : PayloadType.emailId;
   const url = makeUrl(injectValue);
 
   if (!data) throw new Error('There must be data in file');
@@ -469,7 +374,7 @@ export const getUser = async (props: Props) => {
 
   try {
     const outputDir = getDefaultOutputDir();
-    const incomingState = createState(props);
+    const incomingState = await createState(props);
 
     makeSureOutputDirExists(outputDir);
     const state = await checkForMissingState(incomingState);

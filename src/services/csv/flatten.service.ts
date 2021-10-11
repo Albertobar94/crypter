@@ -17,7 +17,7 @@ interface Props {
   columns: string;
   flattenPathToValue?: string;
   outputDir: string;
-  fileFormat?: keyof typeof FFormant;
+  fileFormat: keyof typeof FFormant;
   name?: string;
   transformer?: (data: any) => Record<string, any>[];
   debug?: boolean;
@@ -86,9 +86,6 @@ const flattenService = async ({
       name: 'flattenService',
       instance: instance,
       options: { text: 'FAILED to execute flattenService...' },
-    });
-    logError({
-      message: 'ERROR while Running Extract CSV Service',
     });
     console.error(error);
   } finally {

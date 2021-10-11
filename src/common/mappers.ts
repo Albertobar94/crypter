@@ -1,3 +1,5 @@
+/*----------  Type  ----------*/
+
 type TransformType = 'emailId' | 'userId';
 
 type PayloadResponse<T extends TransformType> = {
@@ -38,8 +40,6 @@ type VResponse =
     }
   | undefined;
 
-// type gTransRes = '[';
-
 type Transformer<T extends TransformType, R> = {
   (props: PayloadResponse<T>): R;
 };
@@ -47,6 +47,8 @@ type Transformer<T extends TransformType, R> = {
 type ETransformer<R> = {
   (props: ErrorResponse): R;
 };
+
+/*----------  Mappers  ----------*/
 
 export const validateTransformer: Transformer<TransformType, VResponse> = ({
   payload,
@@ -183,7 +185,8 @@ export const getUsersErrorsTransformer: ETransformer<Record<string, any>> = ({
   }
 };
 
-// TODO
+/*----------  Transformers  ----------*/
+
 export const transformRecordForUserImport = record => {
   let data = JSON.parse(record.data);
   let { preferences, addresses, user } = data;

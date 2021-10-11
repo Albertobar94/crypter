@@ -1,15 +1,11 @@
-/*=============================================
-=                 Typescript                  =
-=============================================*/
+/*----------  Typescript  ----------*/
 
 export type DeepPartial<T> = {
   [P in keyof T]?: DeepPartial<T[P]>;
 };
 export type NoUndefinedField<T> = { [P in keyof T]-?: NoUndefinedField<NonNullable<T[P]>> };
 
-/*=============================================
-=                    User                     =
-=============================================*/
+/*----------  User  ----------*/
 
 export type IncludesType = keyof typeof Includes;
 export type Segments = Segment[];
@@ -46,27 +42,36 @@ export enum Confirmation {
 }
 
 export interface Props {
-  type?: keyof typeof PayloadType | null;
+  action?: keyof typeof ActionType;
+  type?: keyof typeof PayloadType;
   file?: string | null;
   userId?: string | null;
   emailId?: string | null;
-  includes?: string;
+  includes?: keyof typeof Includes | null;
+  segmentNames?: string | null;
+  segments?: Segments | null;
+  method?: keyof typeof MethodType;
   outputDir?: string;
+  dryRun?: boolean;
   debug?: boolean;
   hideLogs?: boolean;
 }
 
-export type State = {
+export interface State {
   action: keyof typeof ActionType | null;
-  payload: {
-    type: keyof typeof PayloadType | null;
-    file: string | null;
-    userId: string | null;
-    emailId: string | null;
-    // includes: string | null;
-    debug: boolean;
-    dryRun: boolean;
-    hideLogs: boolean;
-    outputDir?: string;
-  };
-};
+  payload: Payload;
+}
+
+export interface Payload {
+  type: keyof typeof PayloadType | null;
+  file: string | null;
+  userId: string | null;
+  emailId: string | null;
+  method: keyof typeof MethodType | null;
+  segments: Segments | null;
+  includes: keyof typeof Includes | null;
+  dryRun: boolean;
+  debug: boolean;
+  hideLogs: boolean;
+  outputDir?: string;
+}
