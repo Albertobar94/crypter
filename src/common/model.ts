@@ -14,6 +14,7 @@ export async function createState(props: Props): Promise<State> {
     debug = false,
     hideLogs = false,
   } = props;
+
   const state: State = {
     action: null,
     payload: {

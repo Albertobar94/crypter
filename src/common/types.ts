@@ -7,7 +7,7 @@ export type NoUndefinedField<T> = { [P in keyof T]-?: NoUndefinedField<NonNullab
 
 /*----------  User  ----------*/
 
-export const UserAction = {
+export const userAction = {
   get: 'get',
   update: 'update',
   delete: 'delete',
@@ -17,7 +17,7 @@ export const UserAction = {
   'post-segments': 'post-segments',
 };
 
-export type UserAction = keyof typeof UserAction;
+export type UserAction = keyof typeof userAction;
 export type IncludesType = keyof typeof Includes;
 export type Segments = Segment[];
 export type Segment = { id: string; name: string };

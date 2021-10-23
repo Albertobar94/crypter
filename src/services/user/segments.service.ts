@@ -25,7 +25,7 @@ import {
 } from '../../common/types';
 import { createState, mutateState } from '../../common/model';
 import {
-  getDefaultOutputDir,
+  getOutputDir,
   getSegments,
   makeSureOutputDirExists,
   normalizeSegments,
@@ -100,7 +100,7 @@ async function checkForMissingState(state: State): Promise<NoUndefinedField<Stat
             name: 'file',
             message: `Select a file`,
             pageSize: 10,
-            root: resolve(getDefaultOutputDir()),
+            root: resolve(getOutputDir()),
             validate: (input: string) => {
               const name = input?.split(path.sep).pop();
               const isFile = name?.endsWith(FFormant.csv) || name?.endsWith(FFormant.json);
@@ -186,9 +186,9 @@ async function checkForMissingState(state: State): Promise<NoUndefinedField<Stat
           {
             type: 'file-tree-selection',
             name: 'outputDirValue',
-            message: `Select root \"${getDefaultOutputDir()}\" directory or any subdirectories to create file`,
+            message: `Select root \"${getOutputDir()}\" directory or any subdirectories to create file`,
             pageSize: 10,
-            root: resolve(getDefaultOutputDir()),
+            root: resolve(getOutputDir()),
             validate: (input: string) => {
               const name = input?.split(path.sep).pop();
               const isFile = name?.endsWith(FFormant.csv) || name?.endsWith(FFormant.json);
@@ -337,7 +337,7 @@ const userSegment = async (props: Props) => {
 
   try {
     const incomingState = await createState(props);
-    const outputDir = getDefaultOutputDir();
+    const outputDir = getOutputDir();
 
     makeSureOutputDirExists(outputDir);
 

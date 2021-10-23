@@ -28,7 +28,7 @@ import {
 } from '../../common/types';
 import got from 'got/dist/source';
 import { createState, mutateState } from '../../common/model';
-import { getDefaultOutputDir, makeSureOutputDirExists, makeUrl } from '../../common/utilities';
+import { getOutputDir, makeSureOutputDirExists, makeUrl } from '../../common/utilities';
 
 /*----------  Utilities  ----------*/
 
@@ -99,7 +99,7 @@ async function checkForMissingState(state: State): Promise<NoUndefinedField<Stat
             name: 'file',
             message: `Select a file`,
             pageSize: 10,
-            root: resolve(getDefaultOutputDir()),
+            root: resolve(getOutputDir()),
             validate: (input: string) => {
               const name = input?.split(path.sep).pop();
               const isFile = name?.endsWith(FFormant.csv) || name?.endsWith(FFormant.json);
@@ -220,9 +220,9 @@ async function checkForMissingState(state: State): Promise<NoUndefinedField<Stat
           {
             type: 'file-tree-selection',
             name: 'outputDirValue',
-            message: `Select root \"${getDefaultOutputDir()}\" directory or any subdirectories to create file`,
+            message: `Select root \"${getOutputDir()}\" directory or any subdirectories to create file`,
             pageSize: 10,
-            root: resolve(getDefaultOutputDir()),
+            root: resolve(getOutputDir()),
             validate: (input: string) => {
               const name = input?.split(path.sep).pop();
               const isFile = name?.endsWith(FFormant.csv) || name?.endsWith(FFormant.json);
@@ -373,7 +373,7 @@ export const getUser = async (props: Props) => {
   const instance = createLogger();
 
   try {
-    const outputDir = getDefaultOutputDir();
+    const outputDir = getOutputDir();
     const incomingState = await createState(props);
 
     makeSureOutputDirExists(outputDir);

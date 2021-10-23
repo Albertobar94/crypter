@@ -8,7 +8,13 @@ import {
 } from '../services/user';
 import { parseDescription, parseFlags } from '../common/helpers';
 import { bootstrap } from '../utils/bootstrap';
-import { FFormant, IncludesType, MethodType, UserAction, UserConfig } from '../common/types';
+import { MethodType, userAction, UserAction, UserConfig } from '../common/types';
+
+/*----------  Utilities  ----------*/
+
+function getCommand(cm: UserAction) {
+  return userAction[cm];
+}
 
 /*----------  Config  ----------*/
 
@@ -105,7 +111,7 @@ const user = new Command()
     } = options;
 
     switch (action) {
-      case UserAction.get:
+      case getCommand('get'):
         await getUserService({
           file,
           userId,
@@ -115,10 +121,10 @@ const user = new Command()
           debug,
         });
         return;
-      case UserAction.update:
+      case getCommand('update'):
         await importUserService({ file, outputDir });
         return;
-      case UserAction.delete:
+      case getCommand('delete'):
         await deleteUsersService({
           userId,
           emailId,
@@ -129,7 +135,7 @@ const user = new Command()
           dryRun,
         });
         return;
-      case UserAction.validate:
+      case getCommand('validate'):
         await validateUsersService({
           file,
           fileFormat,
@@ -139,7 +145,7 @@ const user = new Command()
           dryRun,
         });
         return;
-      case UserAction['get-Segments']:
+      case getCommand('get-segments'):
         await userSegmentService({
           file,
           emailId,
@@ -149,7 +155,7 @@ const user = new Command()
           debug,
         });
         return;
-      case UserAction['post-Segments']:
+      case getCommand('post-segments'):
         await userSegmentService({
           file,
           outputDir,
@@ -161,7 +167,7 @@ const user = new Command()
         });
         return;
       default:
-        throw new Error(`${'Action must be either ' + Object.keys(UserAction).join(' | ')}`);
+        throw new Error(`${'Action must be either ' + Object.keys(userAction).join(' | ')}`);
     }
   });
 

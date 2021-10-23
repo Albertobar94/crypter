@@ -6,17 +6,17 @@ import { PayloadType, Segment, Segments } from './types';
 
 /*----------  Directories  ----------*/
 
-export function getDefaultOutputDir(): string {
+export function getOutputDir(): string {
   return `${process.env.DEFAULT_OUTPUT_DIR}`;
 }
 export function createOutputDir(dir: string): void {
   fs.mkdirSync(dir, { recursive: true });
 }
-export function dirExists(dir: string): Boolean {
+export function outputDirExists(dir: string): Boolean {
   return fs.existsSync(dir);
 }
 export function makeSureOutputDirExists(defaultOutputDir: string): void {
-  if (!dirExists(defaultOutputDir)) createOutputDir(defaultOutputDir);
+  if (!outputDirExists(defaultOutputDir)) createOutputDir(defaultOutputDir);
 }
 
 /*----------    ----------*/
